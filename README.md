@@ -280,20 +280,15 @@ frontmatter in this README and the `Dockerfile`). To deploy:
 
 1. **Install and authenticate the HF CLI:**
    ```bash
-   pip install -U huggingface_hub
-   huggingface-cli login
+   uv add huggingface_hub
+   hf auth login
    ```
    Enter your HF write-access token when prompted.
 
-2. **Create a new Space:**
+2. **Deploy the Space:**
+   Use the `hf upload` command. This will automatically create the Space if it doesn't exist, read the `sdk: docker` setting from the YAML frontmatter, and respect the `.gitignore` rules:
    ```bash
-   huggingface-cli repo create YOUR_SPACE_NAME --type space --space-sdk docker
-   ```
-
-3. **Push the repository:**
-   ```bash
-   git remote add space https://huggingface.co/spaces/YOUR_USERNAME/YOUR_SPACE_NAME
-   git push space main
+   hf upload YOUR_USERNAME/YOUR_SPACE_NAME . --repo-type space
    ```
 
 4. **Wait for build:** HF detects the `Dockerfile`, builds the image, and
