@@ -18,7 +18,7 @@ st.set_page_config(
     page_title="SignalRank — Candidate Discovery Sandbox",
     page_icon="🏆",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # ───────────────────────── Premium Theme CSS ────────────────────────────
@@ -156,15 +156,15 @@ section[data-testid="stSidebar"] {
 
 /* ── Tab Styling ────────────────────────────────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
-    gap: 0.5rem;
+    gap: 2rem;
     background: rgba(30, 41, 59, 0.4);
     border-radius: 12px;
-    padding: 0.3rem;
+    padding: 0.3rem 1rem;
 }
 .stTabs [data-baseweb="tab"] {
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.95rem;
 }
 
 /* ── Expander Styling ───────────────────────────────────────────────── */
@@ -260,13 +260,31 @@ section[data-testid="stSidebar"] {
 /* ── Methodology Note ───────────────────────────────────────────────── */
 .method-note {
     background: rgba(129, 140, 248, 0.06);
-    border-left: 3px solid #818cf8;
+    border-left: 4px solid #818cf8;
     border-radius: 0 8px 8px 0;
-    padding: 0.8rem 1rem;
-    font-size: 0.82rem;
+    padding: 1rem 1.2rem;
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* ── Deep-Dive Metrics ──────────────────────────────────────────────── */
+.small-metric-label {
+    font-size: 0.85rem;
     color: #94a3b8;
-    line-height: 1.5;
-    margin-top: 0.8rem;
+    margin-bottom: 0.1rem;
+}
+.small-metric-val {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 1rem;
+}
+.fit-list {
+    font-size: 1.05rem;
+    line-height: 1.8;
 }
 
 /* ── Responsive Adjustments ─────────────────────────────────────────── */
@@ -531,45 +549,9 @@ def parse_uploaded_file(uploaded_file) -> list[dict]:
     return []
 
 
-# ───────────────────────── Sidebar ──────────────────────────────────────
-st.sidebar.markdown(
-    """
-    <div class="sidebar-brand">
-        <div class="sidebar-brand-title">⚡ SignalRank</div>
-        <div class="sidebar-brand-sub">Candidate Discovery Engine</div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.sidebar.markdown("##### ⚙️ Pipeline Configuration")
-top_n = st.sidebar.slider("Candidates to rank", min_value=5, max_value=200, value=100, step=5)
-artifact_dir = st.sidebar.text_input("Artifact directory", value="artifacts")
-
-st.sidebar.markdown("---")
-st.sidebar.markdown(
-    """
-    <div class="method-note">
-        <strong>Methodology</strong><br>
-        5-stage hybrid ranker: lexical evidence extraction → semantic embedding
-        similarity → domain/title gating → behavioral multiplier → honeypot
-        filtering. No LLM calls at ranking time — CPU-only, offline, under 5 min.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.sidebar.markdown("---")
-st.sidebar.markdown(
-    """
-    <div style="font-size: 0.75rem; color: #475569; text-align: center; padding: 0.5rem 0;">
-        Redrob Hackathon 2026 · Track 1<br>
-        Intelligent Candidate Discovery
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
+# ───────────────────────── Global Settings ──────────────────────────────
+top_n = 100
+artifact_dir = "artifacts"
 
 # ───────────────────────── Hero Section ─────────────────────────────────
 st.markdown(
@@ -580,6 +562,13 @@ st.markdown(
             End-to-end interpretable candidate ranking — hybrid lexical + semantic
             scoring with full audit trail
         </div>
+    </div>
+    
+    <div class="method-note">
+        <strong>Methodology</strong><br>
+        5-stage hybrid ranker: lexical evidence extraction → semantic embedding
+        similarity → domain/title gating → behavioral multiplier → honeypot
+        filtering. No LLM calls at ranking time — CPU-only, offline, under 5 min.
     </div>
     """,
     unsafe_allow_html=True,
@@ -612,7 +601,7 @@ with tab_run:
     col_input, col_stats = st.columns([3, 2], gap="large")
 
     with col_input:
-        st.markdown("#### Data Input Source")
+        st.markdown("#### 📂 Data Input Source")
         input_source = st.radio(
             "Select input data method:",
             ["Use Pre-loaded Sample (100 Candidates)", "Upload Custom Candidates File"],
@@ -666,7 +655,6 @@ with tab_run:
             "🚀  Run Discovery Pipeline",
             type="primary",
             disabled=run_disabled,
-            use_container_width=True,
         ):
             start_time = time.time()
 
@@ -712,7 +700,7 @@ with tab_run:
 
     # ── Stats Panel ─────────────────────────────────────────────────────
     with col_stats:
-        st.markdown("#### Pipeline Metrics")
+        st.markdown("#### 📊 Pipeline Metrics")
         if st.session_state.ranked_results is None:
             st.markdown(
                 """
@@ -731,12 +719,8 @@ with tab_run:
         else:
             uncovered_html = ""
             if embeddings is not None:
-                uncovered_html = f"""
-                    <div class="metric-card">
-                        <div class="metric-value">{st.session_state.uncovered_embeddings}</div>
-                        <div class="metric-label">Missing Embeds</div>
-                    </div>
-                """
+                # Use a single-line string with no leading indentation to avoid markdown code-block rendering
+                uncovered_html = f'<div class="metric-card"><div class="metric-value">{st.session_state.uncovered_embeddings}</div><div class="metric-label">Missing Embeds</div></div>'
 
             st.markdown(
                 f"""
@@ -775,12 +759,24 @@ with tab_run:
                                     letter-spacing: 0.06em; font-weight: 600; margin-bottom: 0.6rem;">
                             Score Distribution
                         </div>
-                        <table class="profile-table">
-                            <tr><td>Highest</td><td>{max(scores):.6f}</td></tr>
-                            <tr><td>Median</td><td>{sorted(scores)[len(scores)//2]:.6f}</td></tr>
-                            <tr><td>Lowest</td><td>{min(scores):.6f}</td></tr>
-                            <tr><td>Spread</td><td>{max(scores) - min(scores):.6f}</td></tr>
-                        </table>
+                        <div class="metric-grid">
+                            <div class="metric-card" style="background: transparent; border: none; padding: 0.5rem;">
+                                <div class="metric-value" style="font-size: 1.3rem;">{max(scores):.6f}</div>
+                                <div class="metric-label">Highest</div>
+                            </div>
+                            <div class="metric-card" style="background: transparent; border: none; padding: 0.5rem;">
+                                <div class="metric-value" style="font-size: 1.3rem;">{sorted(scores)[len(scores)//2]:.6f}</div>
+                                <div class="metric-label">Median</div>
+                            </div>
+                            <div class="metric-card" style="background: transparent; border: none; padding: 0.5rem;">
+                                <div class="metric-value" style="font-size: 1.3rem;">{min(scores):.6f}</div>
+                                <div class="metric-label">Lowest</div>
+                            </div>
+                            <div class="metric-card" style="background: transparent; border: none; padding: 0.5rem;">
+                                <div class="metric-value" style="font-size: 1.3rem;">{max(scores) - min(scores):.6f}</div>
+                                <div class="metric-label">Spread</div>
+                            </div>
+                        </div>
                     </div>
                     """,
                     unsafe_allow_html=True,
@@ -856,7 +852,13 @@ with tab_inspector:
         inspector_cids = [
             f"Rank {r['rank']} — {r['candidate_id']}" for r in st.session_state.ranked_results
         ]
-        selected_label = st.selectbox("Select a candidate to audit:", inspector_cids, index=0)
+        st.markdown("#### 🎯 Select Candidate to Audit")
+        selected_label = st.selectbox(
+            "Select a candidate to audit:",
+            inspector_cids,
+            index=0,
+            label_visibility="collapsed",
+        )
         selected_idx = inspector_cids.index(selected_label)
         selected_row = st.session_state.ranked_results[selected_idx]
 
@@ -946,17 +948,19 @@ with tab_inspector:
             with st.expander("⚡ Engagement Signals", expanded=True):
                 signals = cand.get("redrob_signals") or {}
                 sc_sig1, sc_sig2 = st.columns(2)
+                
+                np_val = f"{signals.get('notice_period_days', 'N/A')} days"
+                otw_val = "Yes" if signals.get("open_to_work_flag") else "No"
+                gh_val = f"{signals.get('github_activity_score', 'N/A')}/100"
+                rr = signals.get("recruiter_response_rate")
+                rr_str = f"{int(rr * 100)}%" if isinstance(rr, (int, float)) else "N/A"
+
                 with sc_sig1:
-                    np_val = f"{signals.get('notice_period_days', 'N/A')} days"
-                    st.metric("Notice Period", np_val)
-                    otw_val = "Yes" if signals.get("open_to_work_flag") else "No"
-                    st.metric("Open to Work", otw_val)
+                    st.markdown(f'<div class="small-metric-label">Notice Period</div><div class="small-metric-val">{np_val}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="small-metric-label">Open to Work</div><div class="small-metric-val">{otw_val}</div>', unsafe_allow_html=True)
                 with sc_sig2:
-                    gh_val = f"{signals.get('github_activity_score', 'N/A')}/100"
-                    st.metric("GitHub Score", gh_val)
-                    rr = signals.get("recruiter_response_rate")
-                    rr_str = f"{int(rr * 100)}%" if isinstance(rr, (int, float)) else "N/A"
-                    st.metric("Response Rate", rr_str)
+                    st.markdown(f'<div class="small-metric-label">GitHub Score</div><div class="small-metric-val">{gh_val}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="small-metric-label">Response Rate</div><div class="small-metric-val">{rr_str}</div>', unsafe_allow_html=True)
 
         with col_trace:
             st.markdown("#### 🧮 Score Audit & Breakdown")
@@ -972,7 +976,7 @@ with tab_inspector:
                                 font-weight: 600; margin-bottom: 0.4rem;">
                         Reasoning
                     </div>
-                    <div style="color: #e2e8f0; font-size: 0.92rem;
+                    <div style="color: #e2e8f0; font-size: 1.15rem;
                                 line-height: 1.55; font-style: italic;">
                         "{reason_str}"
                     </div>
@@ -996,26 +1000,34 @@ with tab_inspector:
 
             col_fit1, col_fit2 = st.columns(2)
             with col_fit1:
-                st.write(f"• **Lexical Evidence:** `{trace.get('evidence', 0.0):.3f}`")
-                st.write(f"• **Domain Gate:** `{trace.get('domain_gate', 1.0):.1f}`")
-                st.write(f"• **Title Gate:** `{trace.get('title_gate', 1.0):.1f}`")
-                st.write(f"• **Semantic:** `{sem_str}`")
-                st.write(f"• **Seniority:** `{trace.get('seniority', 0.0):.2f}`")
+                st.markdown(f"""<div class="fit-list">
+                • <strong>Lexical Evidence:</strong> {trace.get('evidence', 0.0):.3f}<br>
+                • <strong>Domain Gate:</strong> {trace.get('domain_gate', 1.0):.1f}<br>
+                • <strong>Title Gate:</strong> {trace.get('title_gate', 1.0):.1f}<br>
+                • <strong>Semantic:</strong> {sem_str}<br>
+                • <strong>Seniority:</strong> {trace.get('seniority', 0.0):.2f}
+                </div>""", unsafe_allow_html=True)
             with col_fit2:
-                st.write(f"• **Product:** `{trace.get('product', 0.0):.2f}`")
-                st.write(f"• **Stability:** `{trace.get('stability', 0.0):.2f}`")
-                st.write(f"• **Location:** `{trace.get('location', 0.0):.2f}`")
-                st.write(f"• **Education:** `{trace.get('education', 0.0):.2f}`")
+                st.markdown(f"""<div class="fit-list">
+                • <strong>Product:</strong> {trace.get('product', 0.0):.2f}<br>
+                • <strong>Stability:</strong> {trace.get('stability', 0.0):.2f}<br>
+                • <strong>Location:</strong> {trace.get('location', 0.0):.2f}<br>
+                • <strong>Education:</strong> {trace.get('education', 0.0):.2f}
+                </div>""", unsafe_allow_html=True)
 
             st.markdown("##### Behavioral Modifiers")
             col_mod1, col_mod2 = st.columns(2)
             with col_mod1:
-                st.write(f"• **Honeypot:** `{trace.get('honeypot')}`")
-                st.write(f"• **Recency:** `{trace.get('recency', 1.0):.2f}`")
-                st.write(f"• **Availability:** `{trace.get('availability', 1.0):.2f}`")
+                st.markdown(f"""<div class="fit-list">
+                • <strong>Honeypot:</strong> {trace.get('honeypot')}<br>
+                • <strong>Recency:</strong> {trace.get('recency', 1.0):.2f}<br>
+                • <strong>Availability:</strong> {trace.get('availability', 1.0):.2f}
+                </div>""", unsafe_allow_html=True)
             with col_mod2:
-                st.write(f"• **Responsiveness:** `{trace.get('responsiveness', 1.0):.2f}`")
-                st.write(f"• **Credibility:** `{trace.get('credibility', 1.0):.2f}`")
+                st.markdown(f"""<div class="fit-list">
+                • <strong>Responsiveness:</strong> {trace.get('responsiveness', 1.0):.2f}<br>
+                • <strong>Credibility:</strong> {trace.get('credibility', 1.0):.2f}
+                </div>""", unsafe_allow_html=True)
 
             # Fired Concepts
             concepts = trace.get("evidence_concepts")
