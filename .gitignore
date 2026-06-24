@@ -28,6 +28,4 @@ candidates.jsonl
 
 validate_submission.py
 
-# Throwaway audit/EDA scripts
-audit_submission.py
-audit_reasoning.py
+design/
