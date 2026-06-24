@@ -1,0 +1,32 @@
+[project]
+name = "redrob-ranker"
+version = "0.1.0"
+description = "Interpretable top-100 candidate ranker for the Redrob India Runs Hackathon 2026 : Track 1 - The Data & AI Challenge - Intelligent Candidate Discovery."
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "numpy>=2.4.6",
+    "openpyxl>=3.1.5",
+    "streamlit>=1.35.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "ruff>=0.15.16",
+]
+precompute = [
+    "sentence-transformers>=5.5.1",
+    "torch>=2.12.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+# E/F = pycodestyle+pyflakes, I = import sorting, B = bugbear,
+# UP = pyupgrade (modern idioms), SIM = simplify (kill redundancy).
+select = ["E", "F", "I", "B", "UP", "SIM"]
