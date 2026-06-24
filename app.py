@@ -257,6 +257,18 @@ section[data-testid="stSidebar"] {
     transition: width 0.6s ease;
 }
 
+/* ── Custom Download Button ─────────────────────────────────────────── */
+[data-testid="stDownloadButton"] button {
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+    border-color: #10b981 !important;
+}
+[data-testid="stDownloadButton"] button:hover {
+    background-color: #059669 !important;
+    border-color: #059669 !important;
+    color: #ffffff !important;
+}
+
 /* ── Methodology Note ───────────────────────────────────────────────── */
 .method-note {
     background: rgba(129, 140, 248, 0.06);
@@ -283,7 +295,7 @@ section[data-testid="stSidebar"] {
     margin-bottom: 1rem;
 }
 .fit-list {
-    font-size: 1.05rem;
+    font-size: 1.25rem;
     line-height: 1.8;
 }
 
@@ -797,7 +809,6 @@ with tab_leaderboard:
                     file_name="submission.csv",
                     mime="text/csv",
                     type="primary",
-                    use_container_width=True,
                 )
         with col_info:
             n_ranked = len(st.session_state.ranked_results)
@@ -832,7 +843,7 @@ with tab_leaderboard:
 
         st.dataframe(
             display_data,
-            use_container_width=True,
+            use_container_width=False,
             height=600,
             column_config={
                 "Rank": st.column_config.NumberColumn(format="%d", width="small"),
