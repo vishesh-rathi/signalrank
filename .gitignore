@@ -1,0 +1,33 @@
+# Python-generated files and caches
+**/__pycache__/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv/
+
+# macOS
+.DS_Store
+
+# Project-specific
+*.pyc
+
+# Embedding artifacts ARE committed (cand_embeddings.npy is 73 MB, under GitHub's
+# 100 MB limit) so the Stage-3 no-network ranking step reproduces directly via
+# rank.py without first running the network-dependent precompute.py.
+
+# The 465 MB candidate pool must never be committed (GitHub hard-rejects files
+# over 100 MB); the README tells Stage-3 reproducers where to place it.
+candidates.jsonl
+
+validate_submission.py
+
+# Throwaway audit/EDA scripts
+audit_submission.py
+audit_reasoning.py
