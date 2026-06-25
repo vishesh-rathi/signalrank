@@ -1,0 +1,101 @@
+# Redrob Hackathon — Submission Metadata
+
+# ============================================================================
+# Team identity
+# ============================================================================
+team_name: "SignalRank"
+primary_contact:
+  name: "Vishesh Rathi"
+  email: "visheshrathi2008@gmail.com"
+  phone: "+91 9033719303"
+
+team_members:
+  - name: "Vishesh Rathi"
+    email: "visheshrathi2008@gmail.com"
+    role: "Team Lead (Solo Participant)"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+
+github_repo: "FILL IN"
+
+sandbox_link: "https://huggingface.co/spaces/visheshrathi/signalrank"
+
+reproduce_command: "uv run python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
+
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "MacBook Air M1 (Apple Silicon)"
+  cpu_cores: 8
+  ram_gb: 8
+  python_version: "3.13.13"
+  os: "macOS Tahoe 26.5.1"
+  uses_gpu_for_inference: false   # ranking is numpy/CPU only
+  has_network_during_ranking: false
+  pre_computation_required: true   # embeddings are precomputed offline
+  pre_computation_time_minutes: 35 # approximate, on local machine with 'mps' as Apple Silicon GPU backend
+
+# Command used for pre-computation :
+# uv run --group precompute python precompute.py \
+# --candidates ./candidates.jsonl --out artifacts \
+#  --device mps --batch-size 32 --chunk-size 1000 (Using Apple Silicon GPU via '--device mps' flag with predefined batch size and chunk size flags for avoiding OOM errors on local machine with 8 GB RAM)
+
+# ============================================================================
+# AI tools declaration
+# ============================================================================
+ai_tools_used:
+  - "Claude Code"
+  - "Google Antigravity IDE"
+
+ai_usage_summary: |
+  "Claude Code was extensively used as a pair-engineering assistant throughout: dataset analysis,
+  architecture design, and test-driven implementation, under human direction and
+  review at every step. Antigravity was also used for further polishing and result quality determination 
+  as well as further improvements/optimisations and UX building."
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  A 5-stage, highly interpretable ranking pipeline that prioritizes verified
+  human insight over naive keyword matching. The system runs entirely locally
+  in ~53 seconds (CPU-only, no network) using offline-precomputed embeddings.
+
+  1. Honeypot Filter: A deterministic gate instantly zeroes out impossible or
+  self-contradictory profiles.
+
+  2. Domain-Gated Technical Fit: We ignore noisy skill tags and extract deep
+  evidence directly from career narratives. Concept depth is graded from
+  summaries and job titles, while aspirational statements ("looking to grow
+  into AI") and negative mentions are actively suppressed. This score is
+  domain-gated to penalize pure-research and computer-vision profiles that the
+  JD explicitly rejects. Semantic similarity (bge-small-en-v1.5) is kept to a
+  20% minority share to prevent generic AI buzzwords from diluting hard facts.
+
+  3. Contextual Features: We align perfectly with the JD's subtle wants: hitting
+  the 5-9 year seniority sweet spot, prioritizing prior product-company
+  experience, favoring Pune/Noida, and rewarding strong tenure stability.
+
+  4. Behavioral Multiplier: A strict penalty system [0.30, 1.0] aggressively
+  down-weights technically brilliant but unreachable candidates based on poor
+  response rates, stale availability, and low credibility.
+
+  5. Extractive Reasoning: The final score is simply (Fit x Multiplier). Every
+  submission row includes a transparent reasoning string assembled directly
+  from the feature trace—citing grounded profile facts without hallucination,
+  and honestly acknowledging the weakest axis for lower-ranked candidates.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
+

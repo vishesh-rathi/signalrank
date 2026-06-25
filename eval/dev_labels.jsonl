@@ -1,0 +1,160 @@
+{"candidate_id": "CAND_0000031", "tier": 4, "rule": "builder_built", "title": "Recommendation Systems Engineer", "yoe": 6.0, "location": "Hyderabad, Telangana"}
+{"candidate_id": "CAND_0000165", "tier": 1, "rule": "builder_claimed", "title": "AI Specialist", "yoe": 6.8, "location": "San Francisco"}
+{"candidate_id": "CAND_0001600", "tier": 3, "rule": "builder_built", "title": "AI Specialist", "yoe": 6.2, "location": "Jaipur, Rajasthan"}
+{"candidate_id": "CAND_0001870", "tier": 0, "rule": "non_software_title", "title": "Customer Support", "yoe": 9.1, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0005248", "tier": 0, "rule": "non_software_title", "title": "Civil Engineer", "yoe": 10.6, "location": "Trivandrum, Kerala"}
+{"candidate_id": "CAND_0005685", "tier": 1, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 6.7, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0005704", "tier": 2, "rule": "builder_claimed", "title": "ML Engineer", "yoe": 3.3, "location": "Bangalore, Karnataka"}
+{"candidate_id": "CAND_0006166", "tier": 0, "rule": "non_software_title", "title": "Mechanical Engineer", "yoe": 11.4, "location": "Berlin"}
+{"candidate_id": "CAND_0007009", "tier": 5, "rule": "builder_built", "title": "Recommendation Systems Engineer", "yoe": 7.9, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0007066", "tier": 0, "rule": "non_software_title", "title": "Sales Executive", "yoe": 4.1, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0007916", "tier": 1, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 3.7, "location": "Indore, Madhya Pradesh"}
+{"candidate_id": "CAND_0008049", "tier": 4, "rule": "builder_built", "title": "ML Engineer", "yoe": 6.3, "location": "Pune, Maharashtra"}
+{"candidate_id": "CAND_0008297", "tier": 1, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 5.3, "location": "New York"}
+{"candidate_id": "CAND_0008960", "tier": 0, "rule": "honeypot", "title": "Graphic Designer", "yoe": 10.3, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0009200", "tier": 1, "rule": "builder_built+services_only_cap", "title": "AI Specialist", "yoe": 5.7, "location": "Vizag, Andhra Pradesh"}
+{"candidate_id": "CAND_0009313", "tier": 0, "rule": "non_software_title", "title": "Sales Executive", "yoe": 12.7, "location": "London"}
+{"candidate_id": "CAND_0010655", "tier": 2, "rule": "ml_adjacent", "title": "ML Engineer", "yoe": 5.8, "location": "Hyderabad, Telangana"}
+{"candidate_id": "CAND_0011054", "tier": 2, "rule": "ml_adjacent", "title": "Software Engineer", "yoe": 3.2, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0011220", "tier": 2, "rule": "builder_built+junior_cap", "title": "Junior ML Engineer", "yoe": 3.3, "location": "Bangalore, Karnataka"}
+{"candidate_id": "CAND_0011384", "tier": 0, "rule": "non_software_title", "title": "Project Manager", "yoe": 1.2, "location": "Kolkata, West Bengal"}
+{"candidate_id": "CAND_0011432", "tier": 4, "rule": "builder_built", "title": "Senior Data Scientist", "yoe": 7.6, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0011923", "tier": 1, "rule": "rejected_domain_title", "title": "AI Research Engineer", "yoe": 4.0, "location": "Austin"}
+{"candidate_id": "CAND_0012805", "tier": 1, "rule": "builder_claimed", "title": "Data Scientist", "yoe": 4.9, "location": "Ahmedabad, Gujarat"}
+{"candidate_id": "CAND_0012897", "tier": 1, "rule": "ml_adjacent+services_only_cap", "title": "Frontend Engineer", "yoe": 1.7, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0013026", "tier": 0, "rule": "non_software_title", "title": "Content Writer", "yoe": 3.2, "location": "Bangalore, Karnataka"}
+{"candidate_id": "CAND_0013232", "tier": 0, "rule": "non_software_title", "title": "Graphic Designer", "yoe": 11.5, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0014453", "tier": 2, "rule": "ml_adjacent", "title": "Mobile Developer", "yoe": 8.3, "location": "San Francisco"}
+{"candidate_id": "CAND_0015057", "tier": 2, "rule": "ml_adjacent", "title": "ML Engineer", "yoe": 4.6, "location": "Pune, Maharashtra"}
+{"candidate_id": "CAND_0016000", "tier": 0, "rule": "honeypot", "title": "Full Stack Developer", "yoe": 2.0, "location": "Sydney"}
+{"candidate_id": "CAND_0017648", "tier": 3, "rule": "builder_built", "title": "AI Specialist", "yoe": 4.0, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0017918", "tier": 2, "rule": "builder_claimed", "title": "ML Engineer", "yoe": 3.2, "location": "Bangalore, Karnataka"}
+{"candidate_id": "CAND_0018499", "tier": 5, "rule": "builder_built", "title": "Senior Machine Learning Engineer", "yoe": 7.2, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0018722", "tier": 4, "rule": "builder_built", "title": "Recommendation Systems Engineer", "yoe": 6.6, "location": "Toronto"}
+{"candidate_id": "CAND_0018961", "tier": 2, "rule": "ml_adjacent", "title": "AI Specialist", "yoe": 5.0, "location": "Bangalore, Karnataka"}
+{"candidate_id": "CAND_0019290", "tier": 0, "rule": "non_software_title", "title": "HR Manager", "yoe": 9.9, "location": "Vizag, Andhra Pradesh"}
+{"candidate_id": "CAND_0020823", "tier": 1, "rule": "ml_adjacent+services_only_cap", "title": "QA Engineer", "yoe": 2.1, "location": "Pune, Maharashtra"}
+{"candidate_id": "CAND_0021523", "tier": 0, "rule": "non_software_title", "title": "HR Manager", "yoe": 11.4, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0021836", "tier": 2, "rule": "ml_adjacent", "title": "ML Engineer", "yoe": 6.5, "location": "Jaipur, Rajasthan"}
+{"candidate_id": "CAND_0023541", "tier": 2, "rule": "ml_adjacent", "title": "AI Specialist", "yoe": 5.0, "location": "Bhubaneswar, Odisha"}
+{"candidate_id": "CAND_0023882", "tier": 2, "rule": "ml_adjacent", "title": "Frontend Engineer", "yoe": 8.9, "location": "Gurgaon, Haryana"}
+{"candidate_id": "CAND_0024899", "tier": 0, "rule": "non_software_title", "title": "Business Analyst", "yoe": 13.2, "location": "Singapore"}
+{"candidate_id": "CAND_0024947", "tier": 1, "rule": "rejected_domain_title", "title": "AI Research Engineer", "yoe": 6.1, "location": "Trivandrum, Kerala"}
+{"candidate_id": "CAND_0027510", "tier": 0, "rule": "non_software_title", "title": "Business Analyst", "yoe": 9.8, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0028793", "tier": 3, "rule": "builder_built", "title": "Search Engineer", "yoe": 7.2, "location": "Trivandrum, Kerala"}
+{"candidate_id": "CAND_0029278", "tier": 0, "rule": "non_software_title", "title": "Mechanical Engineer", "yoe": 1.6, "location": "Kochi, Kerala"}
+{"candidate_id": "CAND_0029718", "tier": 2, "rule": "ml_adjacent", "title": "Cloud Engineer", "yoe": 5.6, "location": "Kochi, Kerala"}
+{"candidate_id": "CAND_0030175", "tier": 2, "rule": "ml_adjacent", "title": ".NET Developer", "yoe": 8.4, "location": "Ahmedabad, Gujarat"}
+{"candidate_id": "CAND_0030348", "tier": 5, "rule": "builder_built", "title": "Machine Learning Engineer", "yoe": 4.5, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0030706", "tier": 0, "rule": "non_software_title", "title": "Sales Executive", "yoe": 13.5, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0030784", "tier": 2, "rule": "builder_claimed", "title": "Data Scientist", "yoe": 4.4, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0031703", "tier": 2, "rule": "ml_adjacent", "title": "ML Engineer", "yoe": 6.8, "location": "Trivandrum, Kerala"}
+{"candidate_id": "CAND_0033352", "tier": 1, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 5.0, "location": "Indore, Madhya Pradesh"}
+{"candidate_id": "CAND_0033649", "tier": 2, "rule": "ml_adjacent", "title": "Data Scientist", "yoe": 5.3, "location": "Coimbatore, Tamil Nadu"}
+{"candidate_id": "CAND_0033842", "tier": 2, "rule": "ml_adjacent", "title": "Senior Software Engineer (ML)", "yoe": 5.8, "location": "Gurgaon, Haryana"}
+{"candidate_id": "CAND_0034235", "tier": 2, "rule": "ml_adjacent", "title": ".NET Developer", "yoe": 5.2, "location": "Gurgaon, Haryana"}
+{"candidate_id": "CAND_0035104", "tier": 0, "rule": "honeypot", "title": "Software Engineer", "yoe": 5.5, "location": "Chandigarh, Chandigarh"}
+{"candidate_id": "CAND_0036416", "tier": 1, "rule": "builder_claimed", "title": "ML Engineer", "yoe": 5.2, "location": "Chandigarh, Chandigarh"}
+{"candidate_id": "CAND_0036719", "tier": 0, "rule": "non_software_title", "title": "HR Manager", "yoe": 12.7, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0037417", "tier": 1, "rule": "builder_claimed", "title": "Data Scientist", "yoe": 3.3, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0037424", "tier": 1, "rule": "rejected_domain_title", "title": "AI Research Engineer", "yoe": 5.6, "location": "Bhubaneswar, Odisha"}
+{"candidate_id": "CAND_0037534", "tier": 2, "rule": "ml_adjacent", "title": "Senior Data Engineer", "yoe": 7.5, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0037645", "tier": 0, "rule": "non_software_title", "title": "Sales Executive", "yoe": 3.6, "location": "Pune, Maharashtra"}
+{"candidate_id": "CAND_0037968", "tier": 0, "rule": "non_software_title", "title": "Accountant", "yoe": 14.9, "location": "Jaipur, Rajasthan"}
+{"candidate_id": "CAND_0038431", "tier": 0, "rule": "honeypot", "title": "Mobile Developer", "yoe": 15.0, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0038575", "tier": 2, "rule": "ml_adjacent", "title": "Java Developer", "yoe": 6.9, "location": "Coimbatore, Tamil Nadu"}
+{"candidate_id": "CAND_0040471", "tier": 0, "rule": "non_software_title", "title": "Business Analyst", "yoe": 1.3, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0040820", "tier": 2, "rule": "builder_claimed", "title": "Senior Software Engineer (ML)", "yoe": 5.5, "location": "Ahmedabad, Gujarat"}
+{"candidate_id": "CAND_0041414", "tier": 0, "rule": "non_software_title", "title": "Mechanical Engineer", "yoe": 11.5, "location": "London"}
+{"candidate_id": "CAND_0042029", "tier": 5, "rule": "builder_built", "title": "Senior Data Scientist", "yoe": 6.5, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0042139", "tier": 0, "rule": "non_software_title", "title": "Customer Support", "yoe": 10.5, "location": "Dubai"}
+{"candidate_id": "CAND_0042245", "tier": 0, "rule": "honeypot", "title": "Business Analyst", "yoe": 7.9, "location": "Trivandrum, Kerala"}
+{"candidate_id": "CAND_0043450", "tier": 1, "rule": "rejected_domain_title", "title": "AI Research Engineer", "yoe": 3.3, "location": "Gurgaon, Haryana"}
+{"candidate_id": "CAND_0043852", "tier": 2, "rule": "ml_adjacent", "title": "DevOps Engineer", "yoe": 5.7, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0043922", "tier": 0, "rule": "non_software_title", "title": "Civil Engineer", "yoe": 8.5, "location": "Sydney"}
+{"candidate_id": "CAND_0044222", "tier": 4, "rule": "builder_built", "title": "AI Engineer", "yoe": 7.7, "location": "Vizag, Andhra Pradesh"}
+{"candidate_id": "CAND_0044883", "tier": 4, "rule": "builder_built", "title": "AI Engineer", "yoe": 6.3, "location": "Berlin"}
+{"candidate_id": "CAND_0046247", "tier": 2, "rule": "ml_adjacent", "title": "QA Engineer", "yoe": 4.9, "location": "Bhubaneswar, Odisha"}
+{"candidate_id": "CAND_0046649", "tier": 0, "rule": "honeypot", "title": "Business Analyst", "yoe": 3.8, "location": "Coimbatore, Tamil Nadu"}
+{"candidate_id": "CAND_0046924", "tier": 2, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 6.3, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0047682", "tier": 1, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 5.6, "location": "Trivandrum, Kerala"}
+{"candidate_id": "CAND_0048278", "tier": 0, "rule": "non_software_title", "title": "Content Writer", "yoe": 5.8, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0050492", "tier": 1, "rule": "ml_adjacent+services_only_cap", "title": "Java Developer", "yoe": 2.3, "location": "Vizag, Andhra Pradesh"}
+{"candidate_id": "CAND_0051004", "tier": 5, "rule": "builder_built", "title": "Senior Data Scientist", "yoe": 4.7, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0051310", "tier": 1, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 3.5, "location": "Bhubaneswar, Odisha"}
+{"candidate_id": "CAND_0051593", "tier": 4, "rule": "builder_built", "title": "AI Specialist", "yoe": 3.7, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0052328", "tier": 5, "rule": "builder_built", "title": "Recommendation Systems Engineer", "yoe": 6.5, "location": "Pune, Maharashtra"}
+{"candidate_id": "CAND_0052827", "tier": 2, "rule": "ml_adjacent", "title": "Data Scientist", "yoe": 5.9, "location": "Hyderabad, Telangana"}
+{"candidate_id": "CAND_0054703", "tier": 2, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 6.8, "location": "Vizag, Andhra Pradesh"}
+{"candidate_id": "CAND_0055143", "tier": 0, "rule": "non_software_title", "title": "HR Manager", "yoe": 14.5, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0055685", "tier": 0, "rule": "honeypot", "title": "Customer Support", "yoe": 1.4, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0057529", "tier": 2, "rule": "builder_built+junior_cap", "title": "Junior ML Engineer", "yoe": 6.9, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0057742", "tier": 2, "rule": "ml_adjacent+junior_cap", "title": "Junior ML Engineer", "yoe": 4.2, "location": "Kolkata, West Bengal"}
+{"candidate_id": "CAND_0058287", "tier": 2, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 5.5, "location": "Indore, Madhya Pradesh"}
+{"candidate_id": "CAND_0059017", "tier": 1, "rule": "rejected_domain_title", "title": "AI Research Engineer", "yoe": 6.8, "location": "Ahmedabad, Gujarat"}
+{"candidate_id": "CAND_0060340", "tier": 2, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 6.1, "location": "Coimbatore, Tamil Nadu"}
+{"candidate_id": "CAND_0060835", "tier": 5, "rule": "builder_built", "title": "Senior Software Engineer (ML)", "yoe": 6.6, "location": "Bangalore, Karnataka"}
+{"candidate_id": "CAND_0061479", "tier": 3, "rule": "builder_built", "title": "ML Engineer", "yoe": 5.0, "location": "Ahmedabad, Gujarat"}
+{"candidate_id": "CAND_0062506", "tier": 2, "rule": "ml_adjacent", "title": "Mobile Developer", "yoe": 6.4, "location": "Dubai"}
+{"candidate_id": "CAND_0062772", "tier": 4, "rule": "builder_built", "title": "Senior Software Engineer (ML)", "yoe": 6.6, "location": "Trivandrum, Kerala"}
+{"candidate_id": "CAND_0063888", "tier": 0, "rule": "honeypot", "title": ".NET Developer", "yoe": 2.4, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0064077", "tier": 0, "rule": "honeypot", "title": "Project Manager", "yoe": 10.1, "location": "Hyderabad, Telangana"}
+{"candidate_id": "CAND_0065710", "tier": 0, "rule": "honeypot", "title": "Marketing Manager", "yoe": 4.4, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0066347", "tier": 0, "rule": "non_software_title", "title": "Graphic Designer", "yoe": 10.5, "location": "Pune, Maharashtra"}
+{"candidate_id": "CAND_0066999", "tier": 5, "rule": "builder_built", "title": "Recommendation Systems Engineer", "yoe": 5.9, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0067000", "tier": 2, "rule": "ml_adjacent", "title": "Software Engineer", "yoe": 5.3, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0067041", "tier": 4, "rule": "builder_built", "title": "Data Scientist", "yoe": 6.9, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0067535", "tier": 2, "rule": "builder_built+junior_cap", "title": "Junior ML Engineer", "yoe": 6.8, "location": "Jaipur, Rajasthan"}
+{"candidate_id": "CAND_0068777", "tier": 2, "rule": "rejected_domain_title", "title": "AI Research Engineer", "yoe": 6.6, "location": "Jaipur, Rajasthan"}
+{"candidate_id": "CAND_0069191", "tier": 0, "rule": "non_software_title", "title": "Business Analyst", "yoe": 9.3, "location": "Gurgaon, Haryana"}
+{"candidate_id": "CAND_0069503", "tier": 1, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 5.4, "location": "Indore, Madhya Pradesh"}
+{"candidate_id": "CAND_0070189", "tier": 0, "rule": "honeypot", "title": "Operations Manager", "yoe": 6.9, "location": "Hyderabad, Telangana"}
+{"candidate_id": "CAND_0070485", "tier": 3, "rule": "builder_built", "title": "Search Engineer", "yoe": 6.4, "location": "Coimbatore, Tamil Nadu"}
+{"candidate_id": "CAND_0071171", "tier": 0, "rule": "non_software_title", "title": "Customer Support", "yoe": 2.5, "location": "Hyderabad, Telangana"}
+{"candidate_id": "CAND_0071205", "tier": 2, "rule": "builder_claimed", "title": "Senior Software Engineer (ML)", "yoe": 4.6, "location": "New York"}
+{"candidate_id": "CAND_0072128", "tier": 2, "rule": "ml_adjacent", "title": "Full Stack Developer", "yoe": 8.3, "location": "Singapore"}
+{"candidate_id": "CAND_0072396", "tier": 0, "rule": "non_software_title", "title": "Marketing Manager", "yoe": 7.5, "location": "Kochi, Kerala"}
+{"candidate_id": "CAND_0073504", "tier": 2, "rule": "builder_built+junior_cap", "title": "Junior ML Engineer", "yoe": 6.6, "location": "Gurgaon, Haryana"}
+{"candidate_id": "CAND_0073781", "tier": 2, "rule": "ml_adjacent", "title": "ML Engineer", "yoe": 3.1, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0074486", "tier": 2, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 5.5, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0074581", "tier": 0, "rule": "non_software_title", "title": "Customer Support", "yoe": 12.8, "location": "Jaipur, Rajasthan"}
+{"candidate_id": "CAND_0076260", "tier": 2, "rule": "ml_adjacent", "title": "Frontend Engineer", "yoe": 9.5, "location": "Ahmedabad, Gujarat"}
+{"candidate_id": "CAND_0076904", "tier": 2, "rule": "builder_built", "title": "Senior Data Scientist", "yoe": 4.2, "location": "London"}
+{"candidate_id": "CAND_0077003", "tier": 2, "rule": "ml_adjacent", "title": "Data Scientist", "yoe": 6.8, "location": "Kochi, Kerala"}
+{"candidate_id": "CAND_0077296", "tier": 2, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 5.8, "location": "Vizag, Andhra Pradesh"}
+{"candidate_id": "CAND_0078262", "tier": 4, "rule": "builder_built", "title": "ML Engineer", "yoe": 4.9, "location": "Kochi, Kerala"}
+{"candidate_id": "CAND_0078845", "tier": 2, "rule": "ml_adjacent", "title": "Mobile Developer", "yoe": 8.6, "location": "Gurgaon, Haryana"}
+{"candidate_id": "CAND_0079076", "tier": 0, "rule": "non_software_title", "title": "Accountant", "yoe": 9.1, "location": "Hyderabad, Telangana"}
+{"candidate_id": "CAND_0079284", "tier": 5, "rule": "builder_built", "title": "Machine Learning Engineer", "yoe": 4.9, "location": "Hyderabad, Telangana"}
+{"candidate_id": "CAND_0079653", "tier": 0, "rule": "non_software_title", "title": "Business Analyst", "yoe": 4.2, "location": "Kochi, Kerala"}
+{"candidate_id": "CAND_0081778", "tier": 2, "rule": "builder_built", "title": "Data Scientist", "yoe": 6.4, "location": "Sydney"}
+{"candidate_id": "CAND_0082621", "tier": 0, "rule": "non_software_title", "title": "Customer Support", "yoe": 9.1, "location": "Jaipur, Rajasthan"}
+{"candidate_id": "CAND_0083482", "tier": 2, "rule": "ml_adjacent", "title": "Cloud Engineer", "yoe": 7.8, "location": "Pune, Maharashtra"}
+{"candidate_id": "CAND_0083909", "tier": 0, "rule": "non_software_title", "title": "Civil Engineer", "yoe": 6.7, "location": "Ahmedabad, Gujarat"}
+{"candidate_id": "CAND_0085557", "tier": 2, "rule": "builder_built", "title": "Data Scientist", "yoe": 3.1, "location": "Coimbatore, Tamil Nadu"}
+{"candidate_id": "CAND_0086460", "tier": 2, "rule": "ml_adjacent", "title": "ML Engineer", "yoe": 6.2, "location": "Indore, Madhya Pradesh"}
+{"candidate_id": "CAND_0086480", "tier": 0, "rule": "non_software_title", "title": "Civil Engineer", "yoe": 9.6, "location": "Bangalore, Karnataka"}
+{"candidate_id": "CAND_0087120", "tier": 2, "rule": "builder_claimed", "title": "Senior Software Engineer (ML)", "yoe": 5.0, "location": "Indore, Madhya Pradesh"}
+{"candidate_id": "CAND_0087264", "tier": 2, "rule": "builder_built+junior_cap", "title": "Junior ML Engineer", "yoe": 4.0, "location": "Trivandrum, Kerala"}
+{"candidate_id": "CAND_0087364", "tier": 5, "rule": "builder_built", "title": "Recommendation Systems Engineer", "yoe": 4.9, "location": "Gurgaon, Haryana"}
+{"candidate_id": "CAND_0087744", "tier": 1, "rule": "builder_claimed", "title": "Senior Software Engineer (ML)", "yoe": 3.9, "location": "Indore, Madhya Pradesh"}
+{"candidate_id": "CAND_0088378", "tier": 1, "rule": "rejected_domain_title", "title": "AI Research Engineer", "yoe": 6.0, "location": "Jaipur, Rajasthan"}
+{"candidate_id": "CAND_0089678", "tier": 0, "rule": "non_software_title", "title": "Accountant", "yoe": 7.3, "location": "Noida, Uttar Pradesh"}
+{"candidate_id": "CAND_0089806", "tier": 0, "rule": "non_software_title", "title": "Content Writer", "yoe": 6.6, "location": "Vizag, Andhra Pradesh"}
+{"candidate_id": "CAND_0089829", "tier": 2, "rule": "ml_adjacent", "title": "Senior Software Engineer (ML)", "yoe": 4.2, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0091039", "tier": 2, "rule": "ml_adjacent", "title": "AI Specialist", "yoe": 6.8, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0091254", "tier": 1, "rule": "rejected_domain_title", "title": "AI Research Engineer", "yoe": 5.2, "location": "Chandigarh, Chandigarh"}
+{"candidate_id": "CAND_0091955", "tier": 0, "rule": "non_software_title", "title": "Civil Engineer", "yoe": 10.9, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0092228", "tier": 0, "rule": "non_software_title", "title": "Customer Support", "yoe": 5.9, "location": "Bhubaneswar, Odisha"}
+{"candidate_id": "CAND_0092649", "tier": 0, "rule": "non_software_title", "title": "Civil Engineer", "yoe": 12.1, "location": "Sydney"}
+{"candidate_id": "CAND_0093364", "tier": 0, "rule": "honeypot", "title": "Business Analyst", "yoe": 7.9, "location": "Delhi, Delhi"}
+{"candidate_id": "CAND_0094329", "tier": 0, "rule": "non_software_title", "title": "Civil Engineer", "yoe": 7.9, "location": "Sydney"}
+{"candidate_id": "CAND_0094685", "tier": 2, "rule": "rejected_domain_title", "title": "AI Research Engineer", "yoe": 3.5, "location": "Pune, Maharashtra"}
+{"candidate_id": "CAND_0094916", "tier": 2, "rule": "ml_adjacent+junior_cap", "title": "Junior ML Engineer", "yoe": 3.7, "location": "Vizag, Andhra Pradesh"}
+{"candidate_id": "CAND_0095140", "tier": 0, "rule": "honeypot", "title": "Backend Engineer", "yoe": 5.0, "location": "Toronto"}
+{"candidate_id": "CAND_0095317", "tier": 0, "rule": "honeypot", "title": "HR Manager", "yoe": 7.0, "location": "Toronto"}
+{"candidate_id": "CAND_0095468", "tier": 0, "rule": "non_software_title", "title": "Customer Support", "yoe": 9.5, "location": "Seattle"}
+{"candidate_id": "CAND_0095480", "tier": 0, "rule": "honeypot", "title": ".NET Developer", "yoe": 2.3, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0096172", "tier": 4, "rule": "builder_built", "title": "NLP Engineer", "yoe": 5.2, "location": "Chennai, Tamil Nadu"}
+{"candidate_id": "CAND_0098075", "tier": 2, "rule": "ml_adjacent", "title": "Mobile Developer", "yoe": 3.6, "location": "Mumbai, Maharashtra"}
+{"candidate_id": "CAND_0099347", "tier": 1, "rule": "rejected_domain_title", "title": "Computer Vision Engineer", "yoe": 3.5, "location": "Noida, Uttar Pradesh"}

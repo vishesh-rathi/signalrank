@@ -4,9 +4,11 @@ version = "0.1.0"
 description = "Interpretable top-100 candidate ranker for the Redrob India Runs Hackathon 2026 : Track 1 - The Data & AI Challenge - Intelligent Candidate Discovery."
 requires-python = ">=3.13,<3.14"
 dependencies = [
+    "huggingface-hub>=1.18.0",
     "numpy>=2.4.6",
     "openpyxl>=3.1.5",
     "streamlit>=1.35.0",
+    "watchdog>=6.0.0",
 ]
 
 [tool.pytest.ini_options]

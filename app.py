@@ -843,7 +843,7 @@ with tab_leaderboard:
 
         st.dataframe(
             display_data,
-            use_container_width=False,
+            width="stretch",
             height=600,
             column_config={
                 "Rank": st.column_config.NumberColumn(format="%d", width="small"),
