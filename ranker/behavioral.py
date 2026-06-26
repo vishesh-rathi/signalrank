@@ -21,12 +21,30 @@ def _clamp01(value: float) -> float:
     return max(0.0, min(1.0, value))
 
 
+def _notice_factor(notice_days: float) -> float:
+    """Notice-period credit in [0, 1], grounded in the JD's own framing.
+
+    "We'd love sub-30-day notice. We can buy out up to 30 days. 30+ day notice
+    candidates are still in scope but the bar gets higher." A notice within the
+    30-day buy-out window earns full credit; beyond it the factor decays convexly
+    (squared remaining-fraction) to zero at the 180-day ceiling, so longer
+    notices stay in scope but the bar rises progressively — far steeper than a
+    linear decay (90d: 0.36 vs 0.50; 120d: 0.16 vs 0.33) without excluding anyone.
+    """
+    if notice_days <= config.NOTICE_BUYOUT_DAYS:
+        return 1.0
+    remaining = (config.NOTICE_MAX_DAYS - notice_days) / (
+        config.NOTICE_MAX_DAYS - config.NOTICE_BUYOUT_DAYS
+    )
+    return _clamp01(remaining) ** 2
+
+
 def availability_score(signals: dict) -> float:
     """Open-to-work flag (half the weight), short notice period, relocation intent."""
     score = 0.5 if signals.get("open_to_work_flag") else 0.0
     notice_days = signals.get("notice_period_days")
     if isinstance(notice_days, int | float):
-        score += 0.4 * _clamp01((180 - notice_days) / 180)
+        score += 0.4 * _notice_factor(notice_days)
     if signals.get("willing_to_relocate"):
         score += 0.1
     return _clamp01(score)

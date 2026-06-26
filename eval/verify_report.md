@@ -21,10 +21,10 @@ Pool-wide column confirms each gate is live. cv_primary/pure_research read 0 poo
 ## 2. Archetype + evidence of the 100 (independent recompute)
 
 - top-10:  ELITE=7  STRONG=3  SENIOR_ENG=0  GENERIC=0  OTHER=0
-- top-50:  ELITE=12  STRONG=34  SENIOR_ENG=2  GENERIC=2  OTHER=0
-- top-100: ELITE=13  STRONG=64  SENIOR_ENG=5  GENERIC=18  OTHER=0
-- evidence grade (top-100): STRONG=96  MED=4  WEAK=0  NONE=0
-- coherent builders (ELITE/STRONG arch) in top-100: 82 | GENERIC/OTHER in top-100: 18
+- top-50:  ELITE=12  STRONG=35  SENIOR_ENG=2  GENERIC=1  OTHER=0
+- top-100: ELITE=13  STRONG=60  SENIOR_ENG=5  GENERIC=22  OTHER=0
+- evidence grade (top-100): STRONG=95  MED=5  WEAK=0  NONE=0
+- coherent builders (ELITE/STRONG arch) in top-100: 78 | GENERIC/OTHER in top-100: 22
 
 ## 3. ELITE builders (21) — reachability & placement
 
@@ -34,17 +34,17 @@ Pool-wide column confirms each gate is live. cv_primary/pure_research read 0 poo
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | CAND_0046525 | ELITE | 1 | True | 17 | 0.88 | True | 60 | 6.1 | True | True | True | STRONG |
 | CAND_0011687 | ELITE | 2 | True | 30 | 0.89 | True | 15 | 7.8 | True | False | False | STRONG |
-| CAND_0018499 | ELITE | 4 | True | 27 | 0.61 | True | 15 | 7.2 | True | True | True | STRONG |
-| CAND_0077337 | ELITE | 5 | True | 14 | 0.95 | True | 60 | 7.0 | True | False | True | STRONG |
-| CAND_0002025 | ELITE | 6 | True | 14 | 0.8 | True | 30 | 5.9 | True | False | False | STRONG |
+| CAND_0018499 | ELITE | 3 | True | 27 | 0.61 | True | 15 | 7.2 | True | True | True | STRONG |
+| CAND_0002025 | ELITE | 5 | True | 14 | 0.8 | True | 30 | 5.9 | True | False | False | STRONG |
+| CAND_0077337 | ELITE | 6 | True | 14 | 0.95 | True | 60 | 7.0 | True | False | True | STRONG |
 | CAND_0046064 | ELITE | 7 | True | 44 | 0.78 | True | 30 | 8.9 | True | False | False | STRONG |
-| CAND_0088025 | ELITE | 8 | True | 26 | 0.83 | True | 90 | 8.6 | True | False | False | STRONG |
-| CAND_0081846 | ELITE | 11 | True | 37 | 0.73 | True | 30 | 6.7 | True | False | True | STRONG |
+| CAND_0081846 | ELITE | 9 | True | 37 | 0.73 | True | 30 | 6.7 | True | False | True | STRONG |
+| CAND_0088025 | ELITE | 12 | True | 26 | 0.83 | True | 90 | 8.6 | True | False | False | STRONG |
 | CAND_0071974 | ELITE | 13 | True | 54 | 0.76 | True | 45 | 7.8 | True | False | False | STRONG |
-| CAND_0086022 | ELITE | 14 | True | 55 | 0.55 | True | 0 | 5.3 | True | False | True | STRONG |
-| CAND_0055905 | ELITE | 20 | True | 23 | 0.87 | True | 30 | 8.1 | True | False | False | STRONG |
-| CAND_0008425 | ELITE | 32 | True | 45 | 0.66 | True | 90 | 7.8 | True | False | False | STRONG |
-| CAND_0005260 | ELITE | 83 | True | 30 | 0.86 | False | 60 | 5.2 | True | False | True | STRONG |
+| CAND_0055905 | ELITE | 14 | True | 23 | 0.87 | True | 30 | 8.1 | True | False | False | STRONG |
+| CAND_0086022 | ELITE | 16 | True | 55 | 0.55 | True | 0 | 5.3 | True | False | True | STRONG |
+| CAND_0008425 | ELITE | 41 | True | 45 | 0.66 | True | 90 | 7.8 | True | False | False | STRONG |
+| CAND_0005260 | ELITE | 85 | True | 30 | 0.86 | False | 60 | 5.2 | True | False | True | STRONG |
 | CAND_0007411 | ELITE | — | False | 189 | 0.12 | False | 15 | 8.0 | True | False | True | STRONG |
 | CAND_0033861 | ELITE | — | False | 113 | 0.16 | False | 30 | 8.0 | True | False | False | STRONG |
 | CAND_0039754 | ELITE | — | True | 26 | 0.81 | True | 30 | 16.2 | False | False | True | STRONG |
@@ -56,18 +56,20 @@ Pool-wide column confirms each gate is live. cv_primary/pure_research read 0 poo
 
 ## 4. Coherent builders (171) — exclusion accounting
 
-- in top-100: 82 | excluded: 97
-- excluded by reason: {'disqualified': 5, 'CLEAN-MISS': 37, 'out-of-location': 41, 'unreachable': 6, 'out-of-band(yoe)': 8}
-- **CLEAN-MISS** (reachable+in-band+located+clean yet excluded): 37
-- coherent-FIT pool: 92 | in top-100: 55 | excluded: 37
+- in top-100: 78 | excluded: 101
+- excluded by reason: {'CLEAN-MISS': 42, 'disqualified': 5, 'out-of-location': 40, 'unreachable': 6, 'out-of-band(yoe)': 8}
+- **CLEAN-MISS** (reachable+in-band+located+clean yet excluded): 42
+- coherent-FIT pool: 92 | in top-100: 50 | excluded: 42
 
 ### Excluded coherent-FIT (the candidates a correct ranker must justify dropping)
 
 | id | arch | rank | reach | active_d | rr | otw | notice | yoe | in_band | in_target | loc_ok | summ_grade |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
+| CAND_0000031 | STRONG | — | True | 16 | 0.91 | True | 60 | 6.0 | True | True | True | STRONG |
 | CAND_0003977 | STRONG | — | True | 83 | 0.55 | False | 45 | 4.6 | True | True | True | STRONG |
 | CAND_0006557 | STRONG | — | True | 60 | 0.63 | True | 120 | 7.9 | True | False | True | STRONG |
 | CAND_0007009 | STRONG | — | True | 82 | 0.62 | True | 30 | 7.9 | True | True | True | STRONG |
+| CAND_0007412 | STRONG | — | True | 51 | 0.76 | True | 120 | 7.4 | True | True | True | STRONG |
 | CAND_0007460 | STRONG | — | True | 19 | 0.48 | True | 120 | 4.7 | True | True | True | STRONG |
 | CAND_0008239 | STRONG | — | True | 86 | 0.73 | True | 15 | 4.0 | True | False | True | STRONG |
 | CAND_0009837 | STRONG | — | True | 70 | 0.53 | False | 60 | 4.3 | True | True | True | STRONG |
@@ -84,14 +86,17 @@ Pool-wide column confirms each gate is live. cv_primary/pure_research read 0 poo
 | CAND_0044855 | STRONG | — | True | 46 | 0.57 | False | 60 | 6.6 | True | False | True | STRONG |
 | CAND_0045250 | STRONG | — | True | 41 | 0.74 | False | 15 | 6.6 | True | True | True | STRONG |
 | CAND_0047721 | STRONG | — | True | 65 | 0.49 | False | 90 | 7.0 | True | False | True | STRONG |
+| CAND_0049896 | STRONG | — | True | 23 | 0.43 | True | 90 | 7.3 | True | False | True | STRONG |
 | CAND_0054123 | STRONG | — | True | 32 | 0.87 | False | 60 | 4.7 | True | True | True | STRONG |
 | CAND_0057563 | STRONG | — | True | 49 | 0.83 | False | 60 | 6.8 | True | False | True | STRONG |
 | CAND_0058575 | STRONG | — | True | 65 | 0.69 | True | 90 | 5.8 | True | False | True | STRONG |
 | CAND_0060054 | STRONG | — | True | 84 | 0.86 | False | 15 | 6.4 | True | False | True | STRONG |
 | CAND_0061339 | STRONG | — | True | 64 | 0.9 | True | 90 | 4.2 | True | False | True | STRONG |
 | CAND_0064270 | STRONG | — | True | 81 | 0.82 | False | 45 | 4.2 | True | True | True | STRONG |
+| CAND_0064904 | STRONG | — | True | 84 | 0.78 | True | 90 | 4.9 | True | True | True | STRONG |
 | CAND_0066376 | STRONG | — | True | 37 | 0.51 | True | 90 | 5.7 | True | True | True | STRONG |
 | CAND_0068351 | SENIOR_ENG | — | True | 59 | 0.86 | False | 0 | 6.4 | True | True | True | STRONG |
+| CAND_0070398 | STRONG | — | True | 56 | 0.6 | True | 120 | 7.2 | True | False | True | STRONG |
 | CAND_0076251 | STRONG | — | True | 55 | 0.51 | True | 60 | 7.6 | True | False | True | STRONG |
 | CAND_0079284 | STRONG | — | True | 59 | 0.79 | False | 30 | 4.9 | True | True | True | STRONG |
 | CAND_0080766 | SENIOR_ENG | — | True | 61 | 0.66 | False | 0 | 8.8 | True | False | True | STRONG |
@@ -125,7 +130,6 @@ Pool-wide column confirms each gate is live. cv_primary/pure_research read 0 poo
 | CAND_0013613 | STRONG | — | True | 78 | 0.73 | True | 60 | 4.7 | True | False | False | STRONG |
 | CAND_0015528 | STRONG | — | True | 54 | 0.53 | False | 30 | 7.4 | True | False | False | STRONG |
 | CAND_0020350 | STRONG | — | True | 66 | 0.58 | True | 30 | 5.8 | True | False | False | STRONG |
-| CAND_0020708 | STRONG | — | True | 76 | 0.84 | True | 30 | 4.2 | True | False | False | STRONG |
 | CAND_0024466 | STRONG | — | True | 18 | 0.47 | True | 120 | 5.2 | True | False | False | STRONG |
 | CAND_0024620 | STRONG | — | True | 58 | 0.41 | True | 45 | 5.9 | True | False | False | STRONG |
 | CAND_0030031 | STRONG | — | True | 18 | 0.94 | False | 30 | 5.7 | True | False | False | STRONG |
@@ -174,34 +178,38 @@ These hold slots a reviewer could challenge; legitimate only if no excluded cohe
 
 | id | arch | rank | reach | active_d | rr | otw | notice | yoe | in_band | in_target | loc_ok | summ_grade |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| CAND_0068932 | GENERIC | 42 | True | 14 | 0.82 | True | 30 | 5.2 | True | True | True | STRONG |
-| CAND_0073314 | GENERIC | 50 | True | 15 | 0.84 | True | 60 | 5.2 | True | True | True | MED |
-| CAND_0008295 | GENERIC | 59 | True | 14 | 0.89 | True | 45 | 6.5 | True | True | True | STRONG |
-| CAND_0067866 | GENERIC | 60 | True | 18 | 0.79 | True | 45 | 6.4 | True | True | True | MED |
-| CAND_0070525 | GENERIC | 61 | True | 15 | 0.93 | True | 45 | 5.4 | True | True | True | MED |
-| CAND_0092706 | GENERIC | 66 | True | 13 | 0.78 | True | 120 | 5.8 | True | True | True | STRONG |
-| CAND_0070514 | GENERIC | 67 | True | 20 | 0.8 | True | 60 | 5.5 | True | True | True | MED |
-| CAND_0048558 | GENERIC | 73 | True | 13 | 0.8 | True | 30 | 6.7 | True | True | True | MED |
-| CAND_0010603 | GENERIC | 74 | True | 17 | 0.94 | True | 90 | 5.3 | True | True | True | STRONG |
-| CAND_0072688 | GENERIC | 75 | True | 17 | 0.87 | True | 45 | 6.9 | True | True | True | STRONG |
-| CAND_0024549 | GENERIC | 78 | True | 16 | 0.85 | True | 45 | 5.2 | True | True | True | STRONG |
-| CAND_0004402 | GENERIC | 79 | True | 15 | 0.83 | True | 60 | 6.0 | True | True | True | MED |
-| CAND_0053605 | GENERIC | 86 | True | 18 | 0.88 | True | 30 | 6.9 | True | True | True | MED |
-| CAND_0073007 | GENERIC | 88 | True | 33 | 0.83 | True | 60 | 5.8 | True | True | True | MED |
-| CAND_0010149 | GENERIC | 89 | True | 15 | 0.82 | True | 90 | 6.9 | True | True | True | MED |
-| CAND_0082086 | GENERIC | 91 | True | 26 | 0.85 | True | 45 | 6.0 | True | True | True | MED |
-| CAND_0083852 | GENERIC | 92 | True | 13 | 0.85 | True | 90 | 6.0 | True | False | True | STRONG |
-| CAND_0066690 | GENERIC | 93 | True | 13 | 0.88 | True | 30 | 4.8 | True | True | True | MED |
+| CAND_0068932 | GENERIC | 30 | True | 14 | 0.82 | True | 30 | 5.2 | True | True | True | STRONG |
+| CAND_0073314 | GENERIC | 52 | True | 15 | 0.84 | True | 60 | 5.2 | True | True | True | MED |
+| CAND_0008295 | GENERIC | 53 | True | 14 | 0.89 | True | 45 | 6.5 | True | True | True | STRONG |
+| CAND_0067866 | GENERIC | 54 | True | 18 | 0.79 | True | 45 | 6.4 | True | True | True | MED |
+| CAND_0070525 | GENERIC | 55 | True | 15 | 0.93 | True | 45 | 5.4 | True | True | True | MED |
+| CAND_0048558 | GENERIC | 61 | True | 13 | 0.8 | True | 30 | 6.7 | True | True | True | MED |
+| CAND_0070514 | GENERIC | 66 | True | 20 | 0.8 | True | 60 | 5.5 | True | True | True | MED |
+| CAND_0072688 | GENERIC | 71 | True | 17 | 0.87 | True | 45 | 6.9 | True | True | True | STRONG |
+| CAND_0024549 | GENERIC | 75 | True | 16 | 0.85 | True | 45 | 5.2 | True | True | True | STRONG |
+| CAND_0092706 | GENERIC | 76 | True | 13 | 0.78 | True | 120 | 5.8 | True | True | True | STRONG |
+| CAND_0053605 | GENERIC | 78 | True | 18 | 0.88 | True | 30 | 6.9 | True | True | True | MED |
+| CAND_0004402 | GENERIC | 80 | True | 15 | 0.83 | True | 60 | 6.0 | True | True | True | MED |
+| CAND_0010603 | GENERIC | 81 | True | 17 | 0.94 | True | 90 | 5.3 | True | True | True | STRONG |
+| CAND_0066690 | GENERIC | 83 | True | 13 | 0.88 | True | 30 | 4.8 | True | True | True | MED |
+| CAND_0082086 | GENERIC | 87 | True | 26 | 0.85 | True | 45 | 6.0 | True | True | True | MED |
+| CAND_0073007 | GENERIC | 89 | True | 33 | 0.83 | True | 60 | 5.8 | True | True | True | MED |
+| CAND_0046132 | GENERIC | 91 | True | 14 | 0.94 | True | 30 | 4.3 | True | True | True | MED |
+| CAND_0096104 | GENERIC | 93 | True | 33 | 0.33 | True | 30 | 7.0 | True | True | True | MED |
+| CAND_0017093 | GENERIC | 95 | True | 20 | 0.58 | True | 30 | 5.9 | True | True | True | MED |
+| CAND_0010149 | GENERIC | 96 | True | 15 | 0.82 | True | 90 | 6.9 | True | True | True | MED |
+| CAND_0033179 | GENERIC | 99 | True | 18 | 0.84 | True | 30 | 6.9 | True | False | True | STRONG |
+| CAND_0083852 | GENERIC | 100 | True | 13 | 0.85 | True | 90 | 6.0 | True | False | True | STRONG |
 
 ## 6. Boilerplate-divergence (expected, NOT misses)
 
-- non-archetype candidates scored phrase-STRONG only via shuffled career descriptions: excluded=530, in-submission=14.
+- non-archetype candidates scored phrase-STRONG only via shuffled career descriptions: excluded=527, in-submission=17.
   These are the negation-blind / boilerplate false-positives the ranker deliberately discounts (S1/S2). Their exclusion is correct, not a miss.
 
 ## 7. Ordering sanity
 
-- mean independent strength: top10=4.35  11-50=3.74  51-100=3.33
-- Spearman(submission_rank, independent_strength) = 0.753
+- mean independent strength: top10=4.38  11-50=3.77  51-100=3.19
+- Spearman(submission_rank, independent_strength) = 0.781
 
 ## 8. Head-to-head — unjustified swaps (JD-axis dominance)
 
@@ -210,5 +218,5 @@ Excluded coherent-FIT builder that is >= every included GENERIC/OTHER on rr, rec
 - unjustified swap pairs: 0 | distinct excluded builders: 0 | distinct included slots dominated: 0
 
 - cohort availability (the JD's down-weight lever):
-  - excluded coherent-FIT: rr=0.65 active=58d otw=41% notice=66d in_target=46%
-  - included GENERIC/OTHER: rr=0.85 active=17d otw=100% notice=57d in_target=94%
+  - excluded coherent-FIT: rr=0.65 active=57d otw=48% notice=69d in_target=48%
+  - included GENERIC/OTHER: rr=0.82 active=18d otw=100% notice=52d in_target=91%

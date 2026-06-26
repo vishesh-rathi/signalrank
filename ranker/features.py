@@ -431,6 +431,34 @@ def education_score(candidate: dict) -> float:
     return 0.5
 
 
+def tenure_chaser_penalty(candidate: dict) -> float:
+    """Multiplicative fit penalty for the JD's explicitly-rejected title-chaser.
+
+    The JD names title-chasers under "Things we explicitly do NOT want":
+    "optimizing for 'Senior' -> 'Staff' -> 'Principal' titles by switching
+    companies every 1.5 years ... We need someone who plans to be here for 3+
+    years." ``stability_score`` grades retention smoothly for everyone, but at
+    weight 0.08 it cannot keep a strong-fit chaser out of the top ranks on its
+    own. So the unambiguous pattern — ``CHASER_MIN_ROLES`` or more roles averaging
+    under ``CHASER_MAX_AVG_TENURE_MONTHS`` (the JD's "every 1.5 years") — scales
+    fit down by ``config.TENURE_CHASER_PENALTY``. A down-weight, not an exclusion:
+    parity with the domain-title gate and product down-weight that enforce the
+    JD's other named rejections, never a honeypot-style zero. Roles with no
+    positive recorded tenure are ignored, matching ``stability_score``.
+    """
+    tenures = [
+        months
+        for entry in candidate.get("career_history") or []
+        if isinstance(months := entry.get("duration_months"), int | float) and months > 0
+    ]
+    if (
+        len(tenures) >= config.CHASER_MIN_ROLES
+        and sum(tenures) / len(tenures) < config.CHASER_MAX_AVG_TENURE_MONTHS
+    ):
+        return config.TENURE_CHASER_PENALTY
+    return 1.0
+
+
 def weighted_fit(candidate: dict, text: str, semantic: float | None) -> tuple[float, dict]:
     """Blend all features with config.WEIGHTS; return (fit, trace).
 
@@ -447,7 +475,7 @@ def weighted_fit(candidate: dict, text: str, semantic: float | None) -> tuple[fl
     education = education_score(candidate)
     stability = stability_score(candidate)
     weights = config.WEIGHTS
-    fit = (
+    blended_fit = (
         weights["tech"] * technical
         + weights["seniority"] * seniority
         + weights["product"] * product
@@ -455,6 +483,11 @@ def weighted_fit(candidate: dict, text: str, semantic: float | None) -> tuple[fl
         + weights["education"] * education
         + weights["stability"] * stability
     )
+    # The JD's explicitly-rejected title-chaser pattern down-weights the blended
+    # fit (see tenure_chaser_penalty); 1.0 for everyone else, so it is inert
+    # except on the unambiguous "switching companies every 1.5 years" profile.
+    chaser_penalty = tenure_chaser_penalty(candidate)
+    fit = blended_fit * chaser_penalty
     trace = {
         **technical_parts,
         "technical": technical,
@@ -463,6 +496,7 @@ def weighted_fit(candidate: dict, text: str, semantic: float | None) -> tuple[fl
         "location": location,
         "education": education,
         "stability": stability,
+        "chaser_penalty": chaser_penalty,
         "fit": fit,
     }
     return fit, trace

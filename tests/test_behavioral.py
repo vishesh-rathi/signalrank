@@ -2,9 +2,31 @@
 
 from datetime import date
 
-from ranker.behavioral import behavioral_multiplier
+from ranker.behavioral import _notice_factor, availability_score, behavioral_multiplier
 
 TODAY = date(2026, 6, 9)
+
+
+def test_notice_factor_full_credit_within_buyout_then_convex_decay():
+    # JD: "love sub-30-day notice ... can buy out up to 30 days." Anything inside
+    # the buy-out window earns full credit.
+    assert _notice_factor(0) == 1.0
+    assert _notice_factor(30) == 1.0
+    # Beyond it, convex decay to zero at the 180-day ceiling: monotonically
+    # decreasing and strictly steeper than the old linear (180 - d) / 180 curve
+    # for long notices (the point of the fix — "the bar gets higher").
+    assert _notice_factor(60) > _notice_factor(90) > _notice_factor(120) > _notice_factor(180)
+    assert _notice_factor(180) == 0.0
+    assert _notice_factor(90) < (180 - 90) / 180  # 0.36 < 0.50
+    assert _notice_factor(120) < (180 - 120) / 180  # 0.16 < 0.33
+
+
+def test_availability_rewards_short_notice_over_long():
+    short = availability_score({"open_to_work_flag": True, "notice_period_days": 15})
+    long = availability_score({"open_to_work_flag": True, "notice_period_days": 120})
+    assert short > long
+    # A 15-day notice with open-to-work is maximally available on these two axes.
+    assert short == 1.0 * 0.5 + 0.4 * 1.0
 
 
 def make_ideal_candidate() -> dict:

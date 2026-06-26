@@ -18,12 +18,9 @@ team_members:
 # Code and reproducibility
 # ============================================================================
 
-github_repo: "FILL IN"
-
+github_repo: "https://github.com/vishesh-rathi/signalrank"
 sandbox_link: "https://huggingface.co/spaces/visheshrathi/signalrank"
-
 reproduce_command: "uv run python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
-
 
 # ============================================================================
 # Compute environment

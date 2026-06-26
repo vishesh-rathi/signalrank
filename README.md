@@ -127,8 +127,9 @@ The system has two scripts, split by the contest's compute constraints
 | **Domain gate** | CV/speech/robotics engineers with strong ML prose but explicitly JD-rejected |
 | **Title coherence gate** | 4,164 non-tech professionals (Content Writers, HR Managers) whose summaries mention AI from courses |
 | **Self-disclaimer cap** | 1,000 GENERIC candidates whose evidence should grade below non-disclaiming builders |
-| **Behavioral multiplier** (`ranker/behavioral.py`) | Great-on-paper but unreachable candidates (low response rate, months-inactive) |
-| **Stability score** | Title-chasers the JD explicitly rejects ("switching companies every 1.5 years") |
+| **Behavioral multiplier** (`ranker/behavioral.py`) | Great-on-paper but unreachable candidates (low response rate, months-inactive); long notice periods (full credit ≤30d, convex decay beyond — JD: "buy out up to 30 days") |
+| **Stability score** (`ranker/features.py`) | Short-average-tenure careers — a smooth retention grade across the whole pool |
+| **Title-chaser penalty** (`ranker/features.py`) | The JD's explicit rejection of "switching companies every 1.5 years" — ≥4 roles averaging <18 months scale fit down multiplicatively (×0.75), the enforcement stability's 0.08 weight is too light to deliver alone |
 | **Extractive reasoning** (`ranker/reasoning.py`) | Stage-4 manual review penalizes hallucination, templates, and rank-inconsistent tone |
 
 ---
@@ -182,6 +183,27 @@ ranking step (`rank.py`) loads these with numpy alone — no torch, no network,
 no GPU. If the artifacts are missing, it degrades gracefully to lexical-only
 scoring.
 
+### 7. Notice period: full credit inside the buy-out window, convex decay beyond
+
+The JD says it will "buy out up to 30 days" and that "30+ day notice candidates
+are still in scope but the bar gets higher." So the availability sub-score gives
+**full credit to any notice ≤30 days** and then decays the notice factor
+*convexly* (squared remaining-fraction) to zero at the dataset's 180-day ceiling.
+A 90-day notice scores 0.36 (was 0.50 under a linear decay) and a 120-day notice
+0.16 (was 0.33) — long-notice candidates stay in scope but must clear a higher
+bar on every other signal, rather than being excluded outright.
+
+### 8. Title-chasers are down-weighted multiplicatively, not just graded
+
+The JD explicitly rejects candidates "switching companies every 1.5 years." The
+graded `stability_score` carries this signal smoothly but at weight 0.08 cannot,
+on its own, keep a strong-fit chaser out of the top ranks. So the *unambiguous*
+pattern — four or more roles averaging under 18 months — applies a fixed
+multiplicative penalty (×0.75) to the blended fit, mirroring how the JD's other
+named rejections (CV/speech via the domain-title gate, consulting-only via
+product) are enforced. It is a down-weight, never a honeypot-style zero, and is
+inert for every candidate who does not match the pattern.
+
 ---
 
 ## Results
@@ -192,30 +214,30 @@ Independently verified by `eval/verify_submission.py` (imports nothing from
 | Metric | Value |
 |---|---|
 | **Top-10 composition** | 7 ELITE, 3 STRONG, **0 GENERIC** |
-| **Top-50 composition** | 12 ELITE, 34 STRONG, 2 SENIOR_ENG, 2 GENERIC |
-| **Top-100 composition** | 13 ELITE, 64 STRONG, 5 SENIOR_ENG, 18 GENERIC |
+| **Top-50 composition** | 12 ELITE, 35 STRONG, 2 SENIOR_ENG, 1 GENERIC |
+| **Top-100 composition** | 13 ELITE, 60 STRONG, 5 SENIOR_ENG, 22 GENERIC |
 | Honeypots in top-100 | **0** (DQ threshold: >10%) |
-| Trap candidates in top-100 | **0** services-only, **0** keyword-stuffers, **0** non-tech |
+| Trap candidates in top-100 | **0** services-only, **0** keyword-stuffers, **0** non-tech, **0** title-chasers |
 | Unjustified swaps | **0** (no excluded builder dominates an included weaker candidate on all JD axes) |
 | Unique reasoning strings | **100/100** |
-| Spearman (rank vs. independent strength) | **0.753** |
+| Spearman (rank vs. independent strength) | **0.781** |
 
 ### Missing ELITE candidates — every exclusion justified
 
-Of 21 ELITE candidates in the pool, 13 are in the submission. The 8 missing:
-- 2 are **honeypots** (impossible profiles correctly zeroed)
+Of 21 ELITE candidates in the pool, 13 are in the submission. The 8 excluded:
 - 6 are **unreachable** (response rates 0.07–0.16, inactive 113–214 days,
   not open to work) — exactly the candidates the JD says to down-weight
+- 2 are **out of the JD's 5–9-year band** (16.2 and 2.9 years of experience),
+  reachable but outside the seniority window the role targets
 
-### The 18 GENERIC in top-100 — legitimate behavioral advantage
+### The 22 GENERIC in top-100 — legitimate behavioral advantage
 
-All 18 have the self-disclaimer pattern (`has_disclaimer=True`), capping
-their evidence at 0.55 vs. 0.70–1.00 for STRONG/ELITE. They persist because
-of overwhelming engagement: avg response rate 0.85, 100% open-to-work,
-94% in target cities — vs. the 37 excluded STRONG builders at avg 0.65
-response rate, 41% open-to-work, 46% in target cities. The head-to-head
-analysis confirms **0 unjustified swaps**: no excluded builder dominates an
-included GENERIC on *all* JD axes simultaneously.
+The 22 GENERIC-archetype candidates persist on overwhelming engagement, not
+evidence: avg recruiter-response 0.82, 100% open-to-work, 91% in target cities,
+avg notice 52 days — versus the excluded coherent-FIT builders at 0.65 response,
+48% open-to-work, 48% in target cities, 69-day notice. The head-to-head analysis
+confirms **0 unjustified swaps**: no excluded builder dominates an included
+GENERIC on *all* JD axes simultaneously.
 
 ---
 
@@ -351,7 +373,7 @@ auto-committed. The dev set is builder-heavy and the tuner reliably overfits
 ## Tests
 
 ```bash
-uv run pytest -q          # 103 unit + end-to-end tests
+uv run pytest -q          # 109 unit + end-to-end tests
 uv run ruff check .       # lint gate (zero suppressions)
 ```
 

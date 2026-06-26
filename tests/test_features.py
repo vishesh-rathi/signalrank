@@ -10,6 +10,7 @@ from ranker.features import (
     seniority_score,
     stability_score,
     technical_fit,
+    tenure_chaser_penalty,
     weighted_fit,
 )
 
@@ -272,8 +273,50 @@ def test_weighted_fit_returns_score_and_full_trace():
         "location",
         "education",
         "stability",
+        "chaser_penalty",
         "fit",
     }
+
+
+def test_tenure_chaser_penalty_fires_only_on_the_unambiguous_pattern():
+    # The JD's title-chaser: four+ roles averaging under 18 months ("switching
+    # companies every 1.5 years"). The penalty fires here and scales fit down.
+    chaser = {"career_history": [{"duration_months": m} for m in (14, 16, 27, 13)]}
+    assert tenure_chaser_penalty(chaser) == 0.75
+    # Accelerating job-hopping (five short stints) also fires.
+    accel = {"career_history": [{"duration_months": m} for m in (33, 19, 14, 13, 8)]}
+    assert tenure_chaser_penalty(accel) == 0.75
+    # Same short average but only three roles: too little history to call it
+    # chasing (matches stability_score's >=4 requirement) — no penalty.
+    short_history = {"career_history": [{"duration_months": m} for m in (12, 14, 13)]}
+    assert tenure_chaser_penalty(short_history) == 1.0
+    # Four roles but a healthy 30-month average is a stable career — no penalty.
+    stable = {"career_history": [{"duration_months": m} for m in (30, 36, 24, 30)]}
+    assert tenure_chaser_penalty(stable) == 1.0
+    # Empty / missing history is neutral, never penalized.
+    assert tenure_chaser_penalty({}) == 1.0
+
+
+def test_tenure_chaser_penalty_multiplies_into_weighted_fit():
+    profile = {
+        "profile": {
+            "years_of_experience": 7.0,
+            "current_title": "ML Engineer",
+            "current_industry": "Fintech",
+            "summary": "Led a ranking system for semantic search in production.",
+        },
+        "redrob_signals": {},
+    }
+    text = "led a ranking system for semantic search in production"
+    chaser = {**profile, "career_history": [{"duration_months": m} for m in (14, 16, 13, 15)]}
+    stable = {**profile, "career_history": [{"duration_months": m} for m in (40, 44, 38, 42)]}
+    chaser_fit, chaser_trace = weighted_fit(chaser, text, None)
+    stable_fit, stable_trace = weighted_fit(stable, text, None)
+    assert chaser_trace["chaser_penalty"] == 0.75
+    assert stable_trace["chaser_penalty"] == 1.0
+    # The chaser is down-weighted below the otherwise-identical stable career
+    # (both share evidence/seniority/product/location; only tenure differs).
+    assert chaser_fit < stable_fit
 
 
 def test_location_target_city_beats_india_beats_abroad():

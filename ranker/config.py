@@ -352,12 +352,39 @@ WEIGHTS = {
 }
 
 # ---------------------------------------------------------------------------
+# Title-chaser enforcement. The JD lists title-chasers under "Things we
+# explicitly do NOT want": "optimizing for 'Senior' -> 'Staff' -> 'Principal'
+# titles by switching companies every 1.5 years ... We need someone who plans to
+# be here for 3+ years." ``stability_score`` (weight 0.08) grades retention
+# smoothly across the whole pool, but at that weight it cannot keep a strong-fit
+# chaser out of the top ranks on its own. So the *unambiguous* pattern — four or
+# more roles averaging under 18 months (the JD's "every 1.5 years") —
+# additionally scales fit down by a fixed factor. This is a down-weight, not an
+# exclusion: parity with how the JD's other named rejections (CV/speech via the
+# domain-title gate, consulting-only via product) are enforced multiplicatively,
+# never a honeypot-style zero.
+# ---------------------------------------------------------------------------
+CHASER_MIN_ROLES = 4
+CHASER_MAX_AVG_TENURE_MONTHS = 18
+TENURE_CHASER_PENALTY = 0.75
+
+# ---------------------------------------------------------------------------
 # Behavioral multiplier: scales fit into [MULT_FLOOR, 1.0]. It can only
 # down-weight — a great-on-paper but unavailable candidate sinks, but the
 # modifier can never lift a weak fit above an available strong one.
 # ---------------------------------------------------------------------------
 MULT_WEIGHTS = {"availability": 0.30, "responsiveness": 0.30, "recency": 0.25, "credibility": 0.15}
 MULT_FLOOR = 0.30
+
+# Notice-period availability curve. The JD: "We'd love sub-30-day notice. We can
+# buy out up to 30 days. 30+ day notice candidates are still in scope but the bar
+# gets higher." A notice within the buy-out window therefore earns full notice
+# credit; beyond it the factor decays *convexly* (squared) to zero at the
+# dataset's 180-day ceiling, so a long notice stays in scope but the bar rises
+# progressively — a 120-day notice is penalized far more than the previous linear
+# decay (0.16 vs 0.33) while never being excluded outright.
+NOTICE_BUYOUT_DAYS = 30
+NOTICE_MAX_DAYS = 180
 
 # ---------------------------------------------------------------------------
 # Honeypot thresholds (deterministic consistency checks; ~80 forced to tier 0).
