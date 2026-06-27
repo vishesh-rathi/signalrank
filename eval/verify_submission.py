@@ -2,9 +2,9 @@
 """Independent output verification for submission.csv.
 
 This does NOT import anything from ``ranker/`` and does NOT re-run the scorer.
-It is a second, orthogonal opinion built only from the JD text and the EDA lens
-(``analysis/eda.py`` / ``eda2.py``): free-text built-evidence grading,
-honeypot date-arithmetic, and the JD's explicit disqualifier gates. If the
+It is a second, orthogonal opinion built only from the JD text and an
+independent re-derivation implemented in this script: free-text built-evidence
+grading, honeypot date-arithmetic, and the JD's explicit disqualifier gates. If the
 ranker is correct, this independent lens must agree on the big questions:
 
   1. INCLUSION   - none of the 100 should trip a hard JD disqualifier.
@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parent.parent
 POOL = ROOT / "candidates.jsonl"
 SUBMISSION = ROOT / "submission.csv"
 REPORT = ROOT / "eval" / "verify_report.md"
-TODAY = datetime.date(2026, 6, 9)  # data snapshot date (EDA convention)
+TODAY = datetime.date(2026, 6, 9)  # data snapshot date (fixed for reproducibility)
 
 # --- data-fact archetype signatures (verified 21/150/1000; summary-only) ---
 ARCHETYPES = {
@@ -39,7 +39,7 @@ ARCHETYPES = {
     "GENERIC": "predictive modeling, nlp, analytics",
 }
 
-# --- JD constants (lifted from JD text + eda.py, NOT from ranker/config) ---
+# --- JD constants (lifted from the JD text, NOT from ranker/config) ---
 TARGET_CITIES = (
     "pune",
     "noida",
@@ -180,7 +180,7 @@ GATES = (
     "pure_research",
 )
 
-# free-text built-evidence grades (eda2.py), strong -> weak
+# free-text built-evidence grades, strong -> weak
 STRONG_EV = (
     "recommendation system",
     "recommender",
@@ -344,7 +344,7 @@ def evidence_grade(blob):
 
 
 def honeypot_flags(rec, yoe):
-    """EDA composite: 5 impossible/inconsistent checks; >=2 => honeypot."""
+    """Composite of 5 impossible/inconsistent checks; >=2 => honeypot."""
     ch = rec.get("career_history") or []
     sk = rec.get("skills") or []
     flags = []
@@ -719,7 +719,8 @@ def main():
     # ---------------- write full report ----------------
     L = [
         "# Independent submission verification\n",
-        "Lens: JD text + EDA (`eda.py`/`eda2.py`). No `ranker/` import, no re-scoring. "
+        "Lens: JD text + an independent re-derivation in this script "
+        "(`eval/verify_submission.py`). No `ranker/` import, no re-scoring. "
         f"Snapshot {TODAY}. Coherence backbone = summary archetype (verified 21/150/1000), "
         "NOT the negation-blind phrase grade.\n",
         f"- Pool N={n:,}  archetypes: {dict(pool_arch)}",
@@ -830,7 +831,7 @@ def main():
 
     # ---------------- compact verdict (stdout) ----------------
     tot_fp = sum(len(v) for v in fp.values())
-    print("INDEPENDENT VERIFICATION (JD/EDA lens, no ranker import)")
+    print("INDEPENDENT VERIFICATION (JD lens, no ranker import)")
     print(f"pool: {dict(pool_arch)}  N={n}")
     print(f"top-10:  {arch_dist(top10)}   top-50: {arch_dist(top50)}")
     print(

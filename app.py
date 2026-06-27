@@ -731,8 +731,14 @@ with tab_run:
         else:
             uncovered_html = ""
             if embeddings is not None:
-                # Use a single-line string with no leading indentation to avoid markdown code-block rendering
-                uncovered_html = f'<div class="metric-card"><div class="metric-value">{st.session_state.uncovered_embeddings}</div><div class="metric-label">Missing Embeds</div></div>'
+                # Adjacent string literals keep the runtime HTML on a single line
+                # (no leading indentation that would trip markdown code-block
+                # rendering when it is slotted into the grid below).
+                uncovered_html = (
+                    f'<div class="metric-card">'
+                    f'<div class="metric-value">{st.session_state.uncovered_embeddings}</div>'
+                    f'<div class="metric-label">Missing Embeds</div></div>'
+                )
 
             st.markdown(
                 f"""
@@ -764,31 +770,24 @@ with tab_run:
             # Score distribution summary
             if st.session_state.ranked_results:
                 scores = [r["score"] for r in st.session_state.ranked_results]
+                hi, lo = max(scores), min(scores)
+                med = sorted(scores)[len(scores) // 2]
+                stats = [("Highest", hi), ("Median", med), ("Lowest", lo), ("Spread", hi - lo)]
+                cards = "".join(
+                    f'<div class="metric-card" '
+                    f'style="background: transparent; border: none; padding: 0.5rem;">'
+                    f'<div class="metric-value" style="font-size: 1.3rem;">{value:.6f}</div>'
+                    f'<div class="metric-label">{label}</div></div>'
+                    for label, value in stats
+                )
                 st.markdown(
                     f"""
                     <div class="glass-card" style="padding: 1rem 1.2rem;">
                         <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;
-                                    letter-spacing: 0.06em; font-weight: 600; margin-bottom: 0.6rem;">
+                                letter-spacing: 0.06em; font-weight: 600; margin-bottom: 0.6rem;">
                             Score Distribution
                         </div>
-                        <div class="metric-grid">
-                            <div class="metric-card" style="background: transparent; border: none; padding: 0.5rem;">
-                                <div class="metric-value" style="font-size: 1.3rem;">{max(scores):.6f}</div>
-                                <div class="metric-label">Highest</div>
-                            </div>
-                            <div class="metric-card" style="background: transparent; border: none; padding: 0.5rem;">
-                                <div class="metric-value" style="font-size: 1.3rem;">{sorted(scores)[len(scores)//2]:.6f}</div>
-                                <div class="metric-label">Median</div>
-                            </div>
-                            <div class="metric-card" style="background: transparent; border: none; padding: 0.5rem;">
-                                <div class="metric-value" style="font-size: 1.3rem;">{min(scores):.6f}</div>
-                                <div class="metric-label">Lowest</div>
-                            </div>
-                            <div class="metric-card" style="background: transparent; border: none; padding: 0.5rem;">
-                                <div class="metric-value" style="font-size: 1.3rem;">{max(scores) - min(scores):.6f}</div>
-                                <div class="metric-label">Spread</div>
-                            </div>
-                        </div>
+                        <div class="metric-grid">{cards}</div>
                     </div>
                     """,
                     unsafe_allow_html=True,
@@ -966,12 +965,19 @@ with tab_inspector:
                 rr = signals.get("recruiter_response_rate")
                 rr_str = f"{int(rr * 100)}%" if isinstance(rr, (int, float)) else "N/A"
 
+                def small_metric(label: str, value: str) -> None:
+                    st.markdown(
+                        f'<div class="small-metric-label">{label}</div>'
+                        f'<div class="small-metric-val">{value}</div>',
+                        unsafe_allow_html=True,
+                    )
+
                 with sc_sig1:
-                    st.markdown(f'<div class="small-metric-label">Notice Period</div><div class="small-metric-val">{np_val}</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="small-metric-label">Open to Work</div><div class="small-metric-val">{otw_val}</div>', unsafe_allow_html=True)
+                    small_metric("Notice Period", np_val)
+                    small_metric("Open to Work", otw_val)
                 with sc_sig2:
-                    st.markdown(f'<div class="small-metric-label">GitHub Score</div><div class="small-metric-val">{gh_val}</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="small-metric-label">Response Rate</div><div class="small-metric-val">{rr_str}</div>', unsafe_allow_html=True)
+                    small_metric("GitHub Score", gh_val)
+                    small_metric("Response Rate", rr_str)
 
         with col_trace:
             st.markdown("#### 🧮 Score Audit & Breakdown")

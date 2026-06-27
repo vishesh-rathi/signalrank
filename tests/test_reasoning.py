@@ -248,3 +248,147 @@ def test_rank_tier_affects_tone():
     assert len({top, mid, bottom}) == 3, (
         f"Different ranks should produce different reasoning: top={top}, mid={mid}, bottom={bottom}"
     )
+
+
+# ─── Grammar invariants (battle-hardening regression suite) ───────────
+import re  # noqa: E402  (kept local to the grammar-invariant tests below)
+
+# Patterns that must NEVER appear in any generated reasoning string. Each encodes
+# a real templating defect this module was hardened against.
+_FORBIDDEN_PATTERNS = {
+    "doubled verb (has has / has brings / having has …)":
+        re.compile(r"\b(?:has|having)\s+(?:has|have|having|brings?|demonstrated|shows?)\b", re.I),
+    "shows-has double verb": re.compile(r"\bshows?\s+has\b", re.I),
+    "stilted 'in having'": re.compile(r"\bin having\b", re.I),
+    "double space": re.compile(r"  +"),
+    "space before punctuation": re.compile(r"\s[,;.]"),
+    "orphaned semicolon-dash": re.compile(r";\s*—"),
+    "nested parentheses": re.compile(r"\([^()]*\([^()]*\)[^()]*\)"),
+    "wrong article before a vowel-sound initialism":
+        re.compile(r"\ba\s+(?:AI|ML|NLP|IR)\b"),
+    "wrong article before a vowel-letter word":
+        re.compile(r"\ba\s+(?:Applied|Engineer|Analyst|Architect)\b"),
+}
+
+# A matrix that exercises every fragment path — crucially the generic-evidence
+# floor (evidence >= 0.5 with no concepts), which is the exact source of the
+# historical "has has" / "has brings" defects.
+_TITLES = [
+    "ML Engineer",
+    "AI Engineer",
+    "NLP Engineer",
+    "Applied ML Engineer",
+    "Senior Machine Learning Engineer",
+    "Recommendation Systems Engineer",
+    "Search Engineer",
+    "Data Scientist",
+    "AI Research Engineer",
+]
+
+
+def _trace(**over):
+    base = {
+        "evidence": 1.0,
+        "evidence_concepts": ["ranking", "retrieval"],
+        "domain_gate": 1.0,
+        "semantic": 0.9,
+        "seniority": 1.0,
+        "product": 1.0,
+        "location": 1.0,
+        "recency": 0.9,
+        "stability": 1.0,
+        "mult": 0.9,
+        "score": 0.8,
+    }
+    base.update(over)
+    return base
+
+
+_TRACES = [
+    _trace(),  # deep concept builder
+    _trace(evidence_concepts=["recommendation", "hybrid search", "evaluation"]),
+    _trace(evidence=0.5, evidence_concepts=[]),  # generic floor — the bug source
+    _trace(evidence=0.6, evidence_concepts=[]),  # corroboration-only
+    _trace(evidence=0.5, evidence_concepts=[], location=0.2, recency=0.2, product=0.4),
+    _trace(stability=0.3),
+]
+
+
+def _matrix_rows():
+    for t, title in enumerate(_TITLES):
+        for tr, trace in enumerate(_TRACES):
+            for rank in (1, 5, 12, 30, 55, 80, 100):
+                cand = make_candidate(notice_period_days=120 if tr % 2 else 0)
+                cand["candidate_id"] = f"CAND_{(t * 100 + tr * 10 + rank):07d}"
+                cand["profile"] = {"years_of_experience": 8.6 if t % 2 else 7.2,
+                                   "current_title": title}
+                cand["career_history"] = [{"company": "Acme", "is_current": True}]
+                yield generate_reasoning(cand, trace, rank)
+
+
+def test_no_grammar_artifacts_across_matrix():
+    """No generated reasoning may contain any known templating defect."""
+    offenders = {}
+    for text in _matrix_rows():
+        for label, pattern in _FORBIDDEN_PATTERNS.items():
+            if pattern.search(text):
+                offenders.setdefault(label, text)
+    assert not offenders, "Grammar artifacts found:\n" + "\n".join(
+        f"  {label}: {sample}" for label, sample in offenders.items()
+    )
+
+
+def test_every_reasoning_is_well_formed():
+    """Every row capitalizes, ends in a period, carries no stray quote, stays compact."""
+    for text in _matrix_rows():
+        assert text[0].isupper(), f"not capitalized: {text}"
+        assert text.endswith("."), f"no terminal period: {text}"
+        assert '"' not in text, f"stray quote: {text}"
+        assert 20 < len(text) < 300, f"length out of range ({len(text)}): {text}"
+
+
+def test_article_helper_handles_numbers_and_initialisms():
+    """`_article` chooses a/an by spoken sound, including suffixed numbers."""
+    from ranker.reasoning import _article
+
+    assert _article("ML Engineer") == "an"
+    assert _article("AI Engineer") == "an"
+    assert _article("NLP Engineer") == "an"
+    assert _article("Applied ML Engineer") == "an"
+    assert _article("Data Scientist") == "a"
+    assert _article("Senior Machine Learning Engineer") == "a"
+    # Numbers are judged by how they are spoken, even with %/-day/-year suffixes.
+    assert _article("8.6-year tenure") == "an"
+    assert _article("7.2-year tenure") == "a"
+    assert _article("11-year veteran") == "an"
+    assert _article("18-day notice") == "an"
+    assert _article("180-day notice") == "a"  # "one hundred eighty"
+    assert _article("120-day notice") == "a"
+    assert _article("88% response rate") == "an"
+    assert _article("80% response rate") == "an"
+    assert _article("72% response rate") == "a"
+    assert _article("90% response rate") == "a"
+
+
+def test_article_matches_spoken_sound():
+    """Indefinite articles follow spoken sound: 'an ML Engineer', 'a Data Scientist'."""
+    for title in ("ML Engineer", "AI Engineer", "NLP Engineer", "Applied ML Engineer"):
+        cand = make_candidate()
+        cand["profile"] = {"years_of_experience": 7.2, "current_title": title}
+        text = generate_reasoning(cand, make_strong_trace(), rank=1).lower()
+        first = title.split()[0].lower()
+        assert f"an {first}" in text, f"expected 'an {first}' for {title!r}, got: {text}"
+        assert f"a {first} " not in text, f"wrong article for {title!r}, got: {text}"
+    cand = make_candidate()
+    cand["profile"] = {"years_of_experience": 7.2, "current_title": "Data Scientist"}
+    text = generate_reasoning(cand, make_strong_trace(), rank=1).lower()
+    assert "a data scientist" in text and "an data" not in text, text
+
+
+def test_immediate_availability_reads_naturally():
+    """A zero-day notice surfaces as 'immediate availability', never 'within 0 days'."""
+    cand = make_candidate(notice_period_days=0, recruiter_response_rate=0.2,
+                          github_activity_score=0)
+    text = generate_reasoning(cand, make_strong_trace(), rank=10)
+    assert "within 0 days" not in text, text
+    assert "immediate availability" in text, text

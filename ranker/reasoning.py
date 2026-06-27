@@ -1,115 +1,231 @@
 """Extractive reasoning strings for the submission CSV.
 
-Stage-4 review grades reasoning on specificity, honesty, variation, and zero
-hallucination. The reasoning must read like a human recruiter's assessment —
-varied in structure, grounded in profile facts, and honest about gaps.
+Stage-4 review grades the reasoning column on specificity, honesty, variation,
+and zero hallucination. Each string must read like a recruiter's one-line
+assessment: grounded in profile facts, varied in structure across candidates,
+and honest about gaps — never a fill-in-the-blank template.
 
-Design principles for Stage-4 survival:
-  1. MULTIPLE sentence structures — not a fixed semicolon template
-  2. VARIED openings — lead with different aspects per candidate
-  3. ORGANIC phrasing — compound sentences, varied connectors
-  4. INTEGRATED concerns — woven naturally, not always "Concerns: ..."
-  5. RANK-AWARE tone — stronger language for top candidates
-  6. ZERO hallucination — every claim sourced from trace/profile
+The module is built as a tiny, robust assembly grammar rather than ad-hoc string
+gluing, so the output cannot drift into the classic templating defects:
+
+  * Every *strength* fragment is a bare PREDICATE — a phrase that reads correctly
+    straight after "has" / "having" / "who has" ("built ranking systems",
+    "a track record of shipping ML to real users"). ``_as_predicate`` is a
+    defensive net that strips an accidental leading verb, so a doubled verb
+    ("has has", "has brings", "having has") is structurally impossible.
+  * Every *signal* fragment is a NOUN PHRASE ("an 88% recruiter response rate",
+    "immediate availability"), so it reads correctly after "with" / "shows" /
+    "complemented by" alike.
+  * Articles are chosen by spoken sound, not first letter, so the JD's vocabulary
+    of vowel-sound initialisms is handled ("an ML Engineer", "an NLP Engineer",
+    "an 8.6-year tenure"), never "a AI Engineer".
+  * Clauses are joined by an explicit connector list and a final normalizer
+    (``_finalize``) that collapses stray whitespace and removes any space before
+    punctuation — so doubled connectors, "; —", and double spaces cannot survive.
+
+Design principles for Stage-4 survival, unchanged from the spec:
+  1. MULTIPLE sentence structures, selected deterministically by candidate id.
+  2. VARIED openings — lead with different aspects per candidate.
+  3. INTEGRATED concerns — woven with natural connectors, not a fixed suffix.
+  4. RANK-AWARE tone — confident for the top, concern-forward for the tail.
+  5. ZERO hallucination — every claim is sourced from the trace or profile.
 """
 
+import re
 
-# ─── Helper: current employer ─────────────────────────────────────────
+# ─── Article selection ────────────────────────────────────────────────
+# Initialisms whose letter-by-letter pronunciation opens on a vowel sound — the
+# JD's core vocabulary ("AI" = ay-eye, "ML" = em, "NLP" = en, "IR" = eye-arr).
+_VOWEL_SOUND_INITIALISMS = {"ai", "ml", "nlp", "ir", "ux", "ui", "sre", "mle", "llm"}
+# Vowel-LETTER words that are nonetheless pronounced with a leading CONSONANT
+# sound ("a unified pipeline", "a use case"), so they take "a", not "an".
+_CONSONANT_VOWEL_PREFIXES = ("uni", "use", "usa", "ubiq", "eu", "one", "uk")
+
+
+def _number_starts_with_vowel_sound(token: str) -> bool:
+    """True when the spoken form of a leading number opens on a vowel sound.
+
+    Bounded to the magnitudes this module ever renders (years, days, percentages,
+    0-100 scores): 8 / 11 / 18 and the eighties open on a vowel ("eight",
+    "eleven", "eighteen", "eighty"); everything else — including hundreds such as
+    120 or 180 ("one hundred …") — opens on a consonant.
+    """
+    match = re.match(r"\d+", token)
+    if not match:
+        return False
+    whole = match.group().lstrip("0") or "0"
+    if whole in ("8", "11", "18"):
+        return True
+    return len(whole) == 2 and whole[0] == "8"  # 80-89 -> "eighty…"
+
+
+def _article(noun_phrase: str) -> str:
+    """Return "a" or "an" to precede ``noun_phrase``, matched to spoken sound.
+
+    Judges the first word by how it is pronounced, not merely its first letter,
+    so vowel-sound initialisms ("ML"), spelled-out vowels, and leading numbers
+    ("an 8.6-year tenure") are all handled correctly.
+    """
+    stripped = noun_phrase.strip()
+    if not stripped:
+        return "a"
+    word = stripped.split()[0].strip("([{\"'")
+    lowered = word.lower()
+    if not lowered:
+        return "a"
+    if lowered[0].isdigit():
+        return "an" if _number_starts_with_vowel_sound(lowered) else "a"
+    alpha = "".join(ch for ch in lowered if ch.isalpha())
+    if alpha in _VOWEL_SOUND_INITIALISMS:
+        return "an"
+    if lowered[0] in "aeiou":
+        return "a" if lowered.startswith(_CONSONANT_VOWEL_PREFIXES) else "an"
+    return "a"
+
+
+def _with_article(noun_phrase: str) -> str:
+    """``noun_phrase`` prefixed with its correct indefinite article."""
+    return f"{_article(noun_phrase)} {noun_phrase}"
+
+
+# ─── Candidate-id hash (deterministic structural variety) ─────────────
+def _hash(candidate: dict) -> int:
+    """Stable integer drawn from the candidate id — drives pattern selection."""
+    cid = candidate.get("candidate_id", "0")
+    try:
+        return int(cid.split("_")[-1])
+    except ValueError:
+        return 0
+
+
+def _pick(candidate: dict, options: list[str], salt: int = 0) -> str:
+    """Select from ``options`` by candidate-id hash — deterministic but varied.
+
+    ``salt`` shifts the index so independent call sites with the same option
+    count do not always land on the same choice for a given candidate.
+    """
+    return options[(_hash(candidate) + salt) % len(options)]
+
+
+# ─── Current employer ─────────────────────────────────────────────────
 def _current_employer(candidate: dict) -> str | None:
-    """Company of the role flagged is_current — a concrete, non-hallucinated fact."""
+    """Company of the role flagged ``is_current`` — a concrete, sourced fact.
+
+    Career order is never assumed: a company is cited as the present employer
+    only when its own record says so.
+    """
     for entry in candidate.get("career_history") or []:
         if entry.get("is_current") and entry.get("company"):
             return entry["company"]
     return None
 
 
-# ─── Helper: hash-based selector ──────────────────────────────────────
-def _pick(candidate: dict, options: list[str], salt: int = 0) -> str:
-    """Select from options using candidate_id hash — deterministic but varied.
+# ─── Strength fragments (always bare predicates) ──────────────────────
+_LEADING_FINITE_VERB = re.compile(
+    r"^(?:has|have|had|having|brings?|brought|demonstrated|shows?|shown)\s+", re.I
+)
 
-    The ``salt`` parameter shifts the selection so different call sites with
-    the same option count don't always choose the same index.
+
+def _as_predicate(fragment: str) -> str:
+    """Reduce a strength fragment to a bare predicate after "has"/"having".
+
+    Defensive guarantee: even if a fragment is authored with a leading finite
+    verb, this strips it so the assembled sentence can never emit "has has",
+    "has brings", or "having has". Clean fragments pass through untouched.
     """
-    cid = candidate.get("candidate_id", "0")
-    try:
-        h = int(cid.split("_")[-1])
-    except ValueError:
-        h = 0
-    return options[(h + salt) % len(options)]
+    return _LEADING_FINITE_VERB.sub("", fragment).strip()
 
 
-# ─── Helper: concept rendering ────────────────────────────────────────
 def _concept_phrase(concepts: list[str]) -> str:
-    """Render matched concepts as an English list."""
+    """Render matched STRONG concepts as a natural English list."""
     if "hybrid search" in concepts:
+        # "hybrid search" already carries the search idea; drop the bare "search"
+        # so the list does not read "search and hybrid search".
         concepts = [name for name in concepts if name != "search"]
     if len(concepts) == 1:
         return concepts[0]
     return ", ".join(concepts[:-1]) + " and " + concepts[-1]
 
 
-# ─── Strength fragments ──────────────────────────────────────────────
 def _build_evidence_fragment(candidate: dict, trace: dict) -> str | None:
-    """What this candidate has built/shipped — the core technical claim."""
+    """What this candidate has built/shipped — the core technical claim.
+
+    Returns a bare predicate (no leading verb) or None. Concept-grounded
+    fragments quote the exact concepts that fired so two builders with different
+    specialties read differently; the generic floor is used only when graded
+    built-evidence exists without a nameable concept.
+    """
     concepts = trace.get("evidence_concepts") or []
     if concepts:
+        phrase = _concept_phrase(concepts)
         verbs = [
-            f"built {_concept_phrase(concepts)} systems",
-            f"designed and shipped {_concept_phrase(concepts)} pipelines",
-            f"engineered {_concept_phrase(concepts)} infrastructure",
-            f"developed production {_concept_phrase(concepts)} systems",
-            f"architected {_concept_phrase(concepts)} solutions",
-            f"delivered end-to-end {_concept_phrase(concepts)} features",
+            f"built {phrase} systems",
+            f"designed and shipped {phrase} pipelines",
+            f"engineered {phrase} infrastructure",
+            f"developed production {phrase} systems",
+            f"architected {phrase} solutions",
+            f"delivered end-to-end {phrase} features",
         ]
-        return _pick(candidate, verbs, salt=7)
-    elif trace.get("evidence", 0) >= 0.5:
+        return _as_predicate(_pick(candidate, verbs, salt=7))
+    if trace.get("evidence", 0) >= 0.5:
         generic = [
-            "has hands-on experience shipping ML models to production",
-            "brings practical ML deployment experience",
-            "has delivered production ML systems",
-            "demonstrated ability to productionize ML workloads",
-            "has a track record of shipping ML to real users",
+            "shipped machine-learning models to production",
+            "delivered production ML systems end to end",
+            "built and deployed ML models for real users",
+            "productionized ML workloads across the stack",
+            "a track record of shipping ML to real users",
         ]
-        return _pick(candidate, generic, salt=3)
+        return _as_predicate(_pick(candidate, generic, salt=3))
     return None
 
 
+# ─── Signal fragments (always noun phrases) ───────────────────────────
 def _standout_signal(trace: dict, signals: dict) -> tuple[str, float] | None:
-    """Identify the standout engagement signal for this candidate."""
+    """The single strongest engagement signal, as a noun phrase + its strength.
+
+    Every option is a noun phrase, so it reads correctly after "with", "shows",
+    "complemented by", and "and" alike.
+    """
     options: list[tuple[float, str]] = []
     github = signals.get("github_activity_score")
     if isinstance(github, int | float) and github > 0:
-        options.append((min(github / 80, 1.0), f"GitHub activity score of {github:.0f}/100"))
+        options.append(
+            (min(github / 80, 1.0), f"a GitHub activity score of {github:.0f}/100")
+        )
     response = signals.get("recruiter_response_rate")
     if isinstance(response, int | float) and response >= 0.5:
         pct = int(response * 100)
         options.append(
-            (min((response - 0.4) / 0.55, 1.0), f"{pct}% recruiter response rate")
+            (min((response - 0.4) / 0.55, 1.0), _with_article(f"{pct}% recruiter response rate"))
         )
     notice = signals.get("notice_period_days")
     if isinstance(notice, int | float) and notice <= 45:
-        options.append(
-            (min((60 - notice) / 60, 1.0), f"available within {int(notice)} days")
-        )
+        days = int(notice)
+        phrase = "immediate availability" if days == 0 else f"availability within {days} days"
+        options.append((min((60 - notice) / 60, 1.0), phrase))
     if trace.get("location", 0) >= 1.0:
-        options.append((0.45, "located in a JD-preferred city"))
+        options.append((0.45, "a base in one of the JD's hiring cities"))
     if not options:
         return None
-    best = max(options, key=lambda o: o[0])
+    best = max(options, key=lambda option: option[0])
     return best[1], best[0]
 
 
-# ─── Concern fragments ────────────────────────────────────────────────
+# ─── Concern fragments (clean, lowercase clauses) ─────────────────────
 def _gather_concerns(candidate: dict, trace: dict) -> list[str]:
-    """Honest concerns grounded in trace/profile — varied phrasing."""
+    """Honest concerns grounded in trace/profile — varied, no leading punctuation.
+
+    Each clause reads correctly after a connector ("…, though <clause>"), so the
+    assembler can weave any of them without special-casing.
+    """
     signals = candidate.get("redrob_signals", {})
     concerns: list[str] = []
 
     if trace.get("domain_gate", 1.0) <= 0.2:
         concerns.append(
             _pick(candidate, [
-                "primary background is in CV/research rather than NLP/IR",
-                "career focus appears to be computer vision, not retrieval/ranking",
+                "their primary background is computer vision/research rather than NLP/IR",
+                "their career focus is computer vision, not retrieval or ranking",
             ], salt=11)
         )
 
@@ -118,39 +234,39 @@ def _gather_concerns(candidate: dict, trace: dict) -> list[str]:
         nd = int(notice_days)
         concerns.append(
             _pick(candidate, [
-                f"{nd}-day notice period may delay onboarding",
-                f"requires {nd} days before joining",
-                f"long notice period ({nd} days)",
-                f"availability constrained by {nd}-day notice",
+                f"{_with_article(f'{nd}-day notice period')} may delay onboarding",
+                f"they need {nd} days before joining",
+                f"the notice period runs long at {nd} days",
+                f"availability is constrained by {_with_article(f'{nd}-day notice')}",
             ], salt=5)
         )
 
     if trace.get("recency", 1.0) < 0.4:
         concerns.append(
             _pick(candidate, [
-                "limited recent platform activity",
-                "hasn't been active on the platform recently",
+                "platform activity has been limited recently",
+                "they have not been active on the platform recently",
             ], salt=9)
         )
 
     if trace.get("location", 1.0) < 0.6:
         concerns.append(
             _pick(candidate, [
-                "located outside the JD's preferred cities",
-                "not in Pune/Noida or the listed metro areas",
-                "geographic location doesn't match the JD's preference",
+                "they are based outside the JD's preferred cities",
+                "their location is outside Pune/Noida and the listed metros",
+                "their location does not match the JD's preference",
             ], salt=2)
         )
 
     response_rate = signals.get("recruiter_response_rate")
     if isinstance(response_rate, int | float) and response_rate < 0.35:
-        concerns.append(f"recruiter response rate is only {int(response_rate * 100)}%")
+        concerns.append(f"the recruiter response rate is only {int(response_rate * 100)}%")
 
     if trace.get("product", 1.0) <= 0.4:
         concerns.append(
             _pick(candidate, [
-                "career has been entirely in services/consulting",
-                "no product-company experience in their history",
+                "their career has been entirely in services/consulting",
+                "they have no product-company experience",
             ], salt=4)
         )
 
@@ -158,7 +274,7 @@ def _gather_concerns(candidate: dict, trace: dict) -> list[str]:
         concerns.append(
             _pick(candidate, [
                 "short average tenure suggests possible job-hopping",
-                "frequent role changes don't align with the JD's 3+ year expectation",
+                "frequent role changes sit at odds with the JD's 3+ year expectation",
             ], salt=6)
         )
 
@@ -166,7 +282,12 @@ def _gather_concerns(candidate: dict, trace: dict) -> list[str]:
 
 
 def _weakest_axis(candidate: dict, trace: dict) -> str | None:
-    """Name the weakest fit axis as a specific, honest gap."""
+    """Name the weakest fit axis as a specific, honest gap (clean clause).
+
+    Used only for deep ranks whose every hard signal is otherwise clean: rather
+    than fabricate a concern or state the ranking outcome as if it were a
+    candidate fact, name the single softest axis.
+    """
     profile = candidate.get("profile", {})
     axes: list[tuple[float, str]] = []
 
@@ -179,9 +300,9 @@ def _weakest_axis(candidate: dict, trace: dict) -> str | None:
         else:
             axes.append(
                 (evidence, _pick(candidate, [
-                    "no direct ranking/search/retrieval build evidence in their profile",
-                    "profile lacks specific ranking or retrieval system experience",
-                    "general ML background without clear search/ranking depth",
+                    "there is no direct ranking/search/retrieval build evidence in their profile",
+                    "their profile lacks specific ranking or retrieval system experience",
+                    "their background is general ML without clear search/ranking depth",
                 ], salt=8))
             )
 
@@ -193,396 +314,164 @@ def _weakest_axis(candidate: dict, trace: dict) -> str | None:
         and isinstance(years, int | float)
         and not 5 <= years <= 9
     ):
-        axes.append((seniority, f"{years} years of experience sits outside the JD's 5–9 year band"))
+        axes.append(
+            (seniority, f"their {years} years of experience sits outside the JD's 5-9 year band")
+        )
 
     location = trace.get("location")
     if isinstance(location, int | float) and 0.6 <= location < 1.0:
         if location > 0.6:
-            axes.append((location, "based in Bangalore — a strong hub but not a JD-named city"))
+            axes.append(
+                (location, "they are based in Bangalore, a strong hub but not a JD-named city")
+            )
         else:
-            axes.append((location, "located outside the JD's listed cities"))
+            axes.append((location, "their location is outside the JD's listed cities"))
 
     product = trace.get("product")
     if isinstance(product, int | float) and 0.4 < product <= 0.6:
-        axes.append((product, "no confirmed product-company role in their career history"))
+        axes.append((product, "there is no confirmed product-company role in their history"))
 
     stability = trace.get("stability")
     if isinstance(stability, int | float) and 0.3 < stability <= 0.6:
-        axes.append((stability, "average tenure is under two years"))
+        axes.append((stability, "their average tenure is under two years"))
 
     if not axes:
         return None
-    return min(axes, key=lambda a: a[0])[1]
+    return min(axes, key=lambda axis: axis[0])[1]
 
 
-# ─── Main reasoning generator ────────────────────────────────────────
+# ─── Sentence patterns ────────────────────────────────────────────────
+# Each pattern is (lead_template, evidence_connector, signal_connector). The lead
+# template carries the role/experience opening; the two connectors are the exact
+# glue placed before the evidence predicate and the standout noun phrase. A
+# segment that is absent is dropped together with its connector, and the first
+# surviving segment never receives a connector (see ``_assemble``).
+#
+# Placeholders: {ArtCap}/{art} = article for the role noun phrase (capitalized /
+# lowercase); {YrArtCap} = capitalized article for the "{yoe}-year" phrase;
+# {role}/{yoe}/{emp} = title, years, and " at <employer>" (or "").
+_TOP_PATTERNS = [
+    ("{ArtCap} {role} with {yoe} years{emp}", " who has ", ", complemented by "),
+    ("Brings {yoe} years as {art} {role}{emp}", ", having ", " — notably, "),
+    ("{ArtCap} {role}{emp} ({yoe} yrs)", " who has ", "; also brings "),
+    ("{YrArtCap} {yoe}-year {role}{emp}", " who has ", ", with "),
+    ("{ArtCap} {role} with {yoe} years{emp}", "; has ", ", plus "),
+    ("{YrArtCap} {yoe}-year {role}{emp}", ", having ", " — with "),
+]
+_MID_PATTERNS = [
+    ("{ArtCap} {role}{emp} ({yoe} yrs)", " who has ", ", with "),
+    ("With {yoe} years{emp} as {art} {role}", ", has ", " and "),
+    ("{ArtCap} {role} with {yoe} years{emp}", " has ", "; shows "),
+    ("{YrArtCap} {yoe}-year {role}{emp}", " who has ", ", and "),
+    ("Currently {art} {role}{emp} with {yoe} years", ", has ", ", with "),
+    ("{ArtCap} {role} with {yoe} years in the domain{emp}", " has ", ", plus "),
+]
+_LOWER_PATTERNS = [
+    ("{ArtCap} {role}{emp} with {yoe} years", " has ", ", with "),
+    ("{YrArtCap} {yoe}-year {role}{emp}", " has ", ", with "),
+    ("{ArtCap} {role}{emp} ({yoe} yrs)", " has ", ", showing "),
+    ("Working as {art} {role}{emp} for {yoe} years", ", has ", ", with "),
+    ("Currently {art} {role}{emp} ({yoe} yrs)", ", has ", ", with "),
+    ("With {yoe} years{emp} as {art} {role}", ", has ", " and "),
+]
+
+# Concern connectors per tier — the same clause set, attached in a tone that
+# matches the rank: a measured caveat near the top, a frank reservation in the
+# tail. Each begins with its own punctuation, so it appends cleanly.
+_CONCERN_CONNECTORS = {
+    "top": ["; the one caveat is that {c}", "; one caveat: {c}", ", though {c}"],
+    "mid": [", though {c}", "; that said, {c}", ", with the caveat that {c}", "; however, {c}"],
+    "lower": [", though {c}", "; however, {c}", ", but {c}", "; the main reservation is that {c}"],
+}
+
+
+def _assemble(patterns: list[tuple[str, str, str]], facts: tuple, h: int) -> str:
+    """Render one positive (no-concern) clause from a tier's pattern set.
+
+    Joins lead → evidence → standout using the pattern's connectors, dropping any
+    absent segment along with its connector so the result is always grammatical.
+    """
+    role, yoe, emp, evidence, standout = facts
+    lead_template, evidence_connector, signal_connector = patterns[h % len(patterns)]
+    role_article = _article(role)
+    year_article = _article(f"{yoe}-year")
+    lead = lead_template.format(
+        ArtCap=role_article.capitalize(),
+        art=role_article,
+        YrArtCap=year_article.capitalize(),
+        role=role,
+        yoe=yoe,
+        emp=emp,
+    )
+    out = ""
+    segments = (("", lead), (evidence_connector, evidence), (signal_connector, standout))
+    for connector, segment in segments:
+        if not segment:
+            continue
+        out += (connector if out else "") + segment
+    return out
+
+
+def _attach_concern(positive: str, concerns: list[str], h: int, tier: str) -> str:
+    """Weave up to two concerns onto ``positive`` with a tier-appropriate connector."""
+    if not concerns:
+        return positive
+    clause = concerns[0]
+    if len(concerns) > 1:
+        clause += f" and {concerns[1]}"
+    connectors = _CONCERN_CONNECTORS[tier]
+    return positive + connectors[h % len(connectors)].format(c=clause)
+
+
+def _finalize(text: str) -> str:
+    """Normalize spacing/punctuation, capitalize, and guarantee a trailing period.
+
+    This is the last line of defence: it collapses any stray run of whitespace,
+    removes a space before any comma/semicolon/period, and ensures the sentence
+    opens with a capital and closes with a period — so no assembly slip can reach
+    the CSV as a doubled space, "; —", or an uncapitalized fragment.
+    """
+    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+([,;.])", r"\1", text)
+    if not text:
+        return "Profile available."
+    text = text[0].upper() + text[1:]
+    if not text.endswith("."):
+        text += "."
+    return text
+
+
+# ─── Main reasoning generator ─────────────────────────────────────────
 def generate_reasoning(candidate: dict, trace: dict, rank: int) -> str:
     """Build a 1-2 sentence human-readable reasoning from profile facts and trace.
 
-    Structurally varied across candidates: different openings, connectors,
-    and concern integration styles ensure that any 10 randomly sampled rows
-    look substantively different — not template-filled.
+    Structurally varied across candidates (different openings, connectors, and
+    concern integration) so any 10 randomly sampled rows read as distinct
+    assessments. Rank selects the tone tier; the candidate-id hash selects the
+    pattern within it.
     """
     profile = candidate.get("profile", {})
-    signals = candidate.get("redrob_signals", {})
-    title = profile.get("current_title", "Candidate")
+    role = profile.get("current_title") or "Candidate"
     yoe = profile.get("years_of_experience", "?")
     employer = _current_employer(candidate)
-    evidence_frag = _build_evidence_fragment(candidate, trace)
-    standout = _standout_signal(trace, signals)
+    emp = f" at {employer}" if employer else ""
+    evidence = _build_evidence_fragment(candidate, trace)
+    standout_pair = _standout_signal(trace, candidate.get("redrob_signals", {}))
+    standout = standout_pair[0] if standout_pair else None
 
-    # Gather concerns
     concerns = _gather_concerns(candidate, trace)
     if rank > 50 and not concerns:
         weakest = _weakest_axis(candidate, trace)
         if weakest:
             concerns.append(weakest)
 
-    # ── Build the reasoning using structurally different patterns ──────
-    # The candidate_id hash selects which structural pattern to use,
-    # ensuring deterministic but varied output.
-
-    cid = candidate.get("candidate_id", "0")
-    try:
-        h = int(cid.split("_")[-1])
-    except ValueError:
-        h = 0
-
-    # Select structural pattern based on candidate hash + rank tier
-    # This ensures top/mid/bottom candidates get appropriate tone AND
-    # different candidates within the same tier get different structures.
+    h = _hash(candidate)
+    facts = (role, yoe, emp, evidence, standout)
     if rank <= 15:
-        text = _build_top_tier(h, title, yoe, employer, evidence_frag, standout, concerns)
+        positive, tier = _assemble(_TOP_PATTERNS, facts, h), "top"
     elif rank <= 50:
-        text = _build_mid_tier(h, title, yoe, employer, evidence_frag, standout, concerns)
+        positive, tier = _assemble(_MID_PATTERNS, facts, h), "mid"
     else:
-        text = _build_lower_tier(h, title, yoe, employer, evidence_frag, standout, concerns)
+        positive, tier = _assemble(_LOWER_PATTERNS, facts, h), "lower"
 
-    # Normalize: capitalize first letter, ensure trailing period
-    text = text.strip()
-    if text:
-        text = text[0].upper() + text[1:]
-    if not text.endswith("."):
-        text += "."
-    return text
-
-
-# ─── Tier-specific builders ──────────────────────────────────────────
-def _build_top_tier(
-    h: int,
-    title: str,
-    yoe: object,
-    employer: str | None,
-    evidence: str | None,
-    standout: tuple[str, float] | None,
-    concerns: list[str],
-) -> str:
-    """Reasoning for ranks 1–15: confident, detail-rich, strong language."""
-    standout_text = standout[0] if standout else None
-    employer_phrase = f" at {employer}" if employer else ""
-
-    patterns = [
-        # Pattern 0: Lead with role + evidence, follow with standout
-        lambda: _join_parts([
-            f"{title} with {yoe} years of experience{employer_phrase}",
-            f"who has {evidence}" if evidence else None,
-            f"with {standout_text}" if standout_text else None,
-            _concern_suffix(concerns, h),
-        ]),
-        # Pattern 1: Lead with experience narrative
-        lambda: _join_parts([
-            f"brings {yoe} years as a {title}{employer_phrase}",
-            f"and has {evidence}" if evidence else None,
-            f"— notably, {standout_text}" if standout_text else None,
-            _concern_suffix(concerns, h),
-        ]),
-        # Pattern 2: Lead with employer context
-        lambda: _join_parts([
-            f"currently a {title}{employer_phrase} ({yoe} yrs)",
-            f"with demonstrated strength in having {evidence}" if evidence else None,
-            f"and {standout_text}" if standout_text else None,
-            _concern_suffix(concerns, h),
-        ]),
-        # Pattern 3: Lead with the built-systems evidence
-        lambda: _join_parts([
-            f"has {evidence}{employer_phrase}" if evidence else f"{title}{employer_phrase}",
-            f"over {yoe} years in the field" if evidence else f"with {yoe} years of experience",
-            f"complemented by {standout_text}" if standout_text else None,
-            _concern_suffix(concerns, h),
-        ]),
-        # Pattern 4: Lead with standout signal
-        lambda: _join_parts([
-            f"strong candidate with {standout_text}" if standout_text
-            else f"strong {title}",
-            f"— {yoe} years as a {title}{employer_phrase}",
-            f"having {evidence}" if evidence else None,
-            _concern_suffix(concerns, h),
-        ]),
-        # Pattern 5: Narrative flow
-        lambda: _join_parts([
-            f"a {yoe}-year {title}{employer_phrase}",
-            f"who has {evidence}" if evidence else None,
-            f"with strong engagement signals ({standout_text})" if standout_text else None,
-            _concern_suffix(concerns, h),
-        ]),
-    ]
-
-    return patterns[h % len(patterns)]()
-
-
-def _build_mid_tier(
-    h: int,
-    title: str,
-    yoe: object,
-    employer: str | None,
-    evidence: str | None,
-    standout: tuple[str, float] | None,
-    concerns: list[str],
-) -> str:
-    """Reasoning for ranks 16–50: solid but measured, concerns integrated naturally."""
-    standout_text = standout[0] if standout else None
-    employer_phrase = f" at {employer}" if employer else ""
-
-    patterns = [
-        # Pattern 0: Balanced assessment
-        lambda: _join_parts([
-            f"{title} ({yoe} yrs){employer_phrase}",
-            f"has {evidence}" if evidence else None,
-            f"with {standout_text}" if standout_text else None,
-            _concern_integrated(concerns, h),
-        ]),
-        # Pattern 1: Lead with evidence, natural concern flow
-        lambda: _join_parts([
-            f"with {yoe} years{employer_phrase} as a {title}",
-            f"has {evidence}" if evidence else None,
-            _concern_contrast(concerns, standout_text, h),
-        ]),
-        # Pattern 2: Employer-first with parenthetical concern
-        lambda: _join_parts([
-            f"currently{employer_phrase} as a {title} with {yoe} years",
-            f"having {evidence}" if evidence else None,
-            f"and {standout_text}" if standout_text else None,
-            _concern_parenthetical(concerns),
-        ]),
-        # Pattern 3: Evidence-forward
-        lambda: _join_parts([
-            f"has {evidence}" if evidence else f"{title}",
-            f"across {yoe} years{employer_phrase}",
-            f"with {standout_text}" if standout_text else None,
-            _concern_integrated(concerns, h),
-        ]),
-        # Pattern 4: Compact with concern clause
-        lambda: _join_parts([
-            f"{title}{employer_phrase} ({yoe} yrs)",
-            f"who has {evidence}" if evidence else None,
-            _concern_however(concerns, standout_text),
-        ]),
-        # Pattern 5: Role narrative
-        lambda: _join_parts([
-            f"a {title} with {yoe} years in the domain{employer_phrase}",
-            f"has {evidence}" if evidence else None,
-            f"showing {standout_text}" if standout_text else None,
-            _concern_suffix(concerns, h),
-        ]),
-        # Pattern 6: Signal-first approach
-        lambda: _join_parts([
-            f"shows {standout_text}" if standout_text
-            else f"a solid {title}",
-            f"as a {title}{employer_phrase} with {yoe} years",
-            f"having {evidence}" if evidence else None,
-            _concern_integrated(concerns, h),
-        ]),
-    ]
-
-    return patterns[h % len(patterns)]()
-
-
-def _build_lower_tier(
-    h: int,
-    title: str,
-    yoe: object,
-    employer: str | None,
-    evidence: str | None,
-    standout: tuple[str, float] | None,
-    concerns: list[str],
-) -> str:
-    """Reasoning for ranks 51–100: honest, concern-forward, measured praise."""
-    standout_text = standout[0] if standout else None
-    employer_phrase = f" at {employer}" if employer else ""
-
-    patterns = [
-        # Pattern 0: Concern-integrated naturally
-        lambda: _join_parts([
-            f"{title}{employer_phrase} with {yoe} years",
-            f"has {evidence}" if evidence else None,
-            _concern_however(concerns, standout_text),
-        ]),
-        # Pattern 1: Lead with what's there, follow with gap
-        lambda: _join_parts([
-            f"brings {yoe} years as a {title}{employer_phrase}",
-            f"and has {evidence}" if evidence else None,
-            _concern_though(concerns),
-        ]),
-        # Pattern 2: Balanced with explicit gap acknowledgment
-        lambda: _join_parts([
-            f"a {yoe}-year {title}{employer_phrase}",
-            f"with {standout_text}" if standout_text else None,
-            _concern_but(concerns, evidence),
-        ]),
-        # Pattern 3: Concern-forward for deep ranks
-        lambda: _join_parts([
-            f"{title} ({yoe} yrs){employer_phrase}",
-            _concern_while(concerns, evidence, standout_text),
-        ]),
-        # Pattern 4: Brief with honest assessment
-        lambda: _join_parts([
-            f"currently{employer_phrase} as a {title} ({yoe} yrs)",
-            f"has {evidence}" if evidence else None,
-            _concern_integrated(concerns, h),
-        ]),
-        # Pattern 5: Context-first
-        lambda: _join_parts([
-            f"working as a {title}{employer_phrase} for {yoe} years",
-            f"with experience in having {evidence}" if evidence else None,
-            _concern_suffix(concerns, h),
-        ]),
-    ]
-
-    return patterns[h % len(patterns)]()
-
-
-# ─── Concern integration helpers ──────────────────────────────────────
-def _join_parts(parts: list[str | None]) -> str:
-    """Join non-None parts with appropriate punctuation."""
-    filtered = [p for p in parts if p]
-    if not filtered:
-        return ""
-    # Join with comma-space or semicolon based on part lengths
-    result = filtered[0]
-    for part in filtered[1:]:
-        if part.startswith("—") or part.startswith("("):
-            result += f" {part}"
-        elif part.startswith(",") or part.startswith(".") or part.startswith(";"):
-            result += part
-        elif len(result) > 60:
-            result += f"; {part}"
-        else:
-            result += f", {part}"
-    return result
-
-
-def _concern_suffix(concerns: list[str], h: int) -> str | None:
-    """Traditional concern suffix — used sparingly, not as the only style."""
-    if not concerns:
-        return None
-    prefixes = [
-        "though ",
-        "noting that ",
-        "however, ",
-        "with the caveat that ",
-    ]
-    prefix = prefixes[h % len(prefixes)]
-    return f". {prefix.capitalize()}{concerns[0]}" + (
-        f" and {concerns[1]}" if len(concerns) > 1 else ""
-    )
-
-
-def _concern_integrated(concerns: list[str], h: int) -> str | None:
-    """Weave concern naturally into the sentence flow."""
-    if not concerns:
-        return None
-    connectors = [
-        f", although {concerns[0]}",
-        f", but {concerns[0]}",
-        f" — {concerns[0]}",
-        f", with {concerns[0]} as a consideration",
-    ]
-    result = connectors[h % len(connectors)]
-    if len(concerns) > 1:
-        result += f" and {concerns[1]}"
-    return result
-
-
-def _concern_parenthetical(concerns: list[str]) -> str | None:
-    """Parenthetical concern — compact and unobtrusive."""
-    if not concerns:
-        return None
-    if len(concerns) == 1:
-        return f" ({concerns[0]})"
-    return f" ({concerns[0]}; {concerns[1]})"
-
-
-def _concern_contrast(
-    concerns: list[str], standout_text: str | None, h: int
-) -> str | None:
-    """Contrast concern against a positive signal."""
-    if not concerns:
-        if standout_text:
-            return f", and {standout_text}"
-        return None
-    if standout_text:
-        connectors = [
-            f"; {standout_text}, though {concerns[0]}",
-            f"; while {standout_text}, {concerns[0]}",
-            f"; {standout_text} — but {concerns[0]}",
-        ]
-        return connectors[h % len(connectors)]
-    return f", though {concerns[0]}"
-
-
-def _concern_however(concerns: list[str], standout_text: str | None) -> str | None:
-    """'However'-style concern with optional positive contrast."""
-    if not concerns:
-        if standout_text:
-            return f", with {standout_text}"
-        return None
-    concern_text = concerns[0]
-    if len(concerns) > 1:
-        concern_text += f" and {concerns[1]}"
-    if standout_text:
-        return f"; {standout_text}, however {concern_text}"
-    return f". However, {concern_text}"
-
-
-def _concern_though(concerns: list[str]) -> str | None:
-    """Trailing 'though' clause for natural flow."""
-    if not concerns:
-        return None
-    concern_text = " and ".join(concerns[:2])
-    return f", though {concern_text}"
-
-
-def _concern_but(
-    concerns: list[str], evidence: str | None
-) -> str | None:
-    """'But' connector — acknowledges gap after positive."""
-    if not concerns:
-        return f", and has {evidence}" if evidence else None
-    if evidence:
-        return f", has {evidence}, but {concerns[0]}"
-    return f", but {concerns[0]}"
-
-
-def _concern_while(
-    concerns: list[str], evidence: str | None, standout_text: str | None
-) -> str | None:
-    """'While' structure — balanced assessment."""
-    if not concerns:
-        parts = []
-        if evidence:
-            parts.append(f"has {evidence}")
-        if standout_text:
-            parts.append(standout_text)
-        return ", ".join(parts) if parts else None
-
-    positive_parts = []
-    if evidence:
-        positive_parts.append(f"has {evidence}")
-    if standout_text:
-        positive_parts.append(standout_text)
-
-    concern_text = " and ".join(concerns[:2])
-    if positive_parts:
-        positive = " and ".join(positive_parts)
-        return f"; while the profile shows {positive}, {concern_text}"
-    return f"; {concern_text}"
+    return _finalize(_attach_concern(positive, concerns, h, tier))

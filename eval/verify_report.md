@@ -1,6 +1,6 @@
 # Independent submission verification
 
-Lens: JD text + EDA (`eda.py`/`eda2.py`). No `ranker/` import, no re-scoring. Snapshot 2026-06-09. Coherence backbone = summary archetype (verified 21/150/1000), NOT the negation-blind phrase grade.
+Lens: JD text + an independent re-derivation in this script (`eval/verify_submission.py`). No `ranker/` import, no re-scoring. Snapshot 2026-06-09. Coherence backbone = summary archetype (verified 21/150/1000), NOT the negation-blind phrase grade.
 
 - Pool N=100,000  archetypes: {'OTHER': 98821, 'STRONG': 150, 'GENERIC': 1000, 'ELITE': 21, 'SENIOR_ENG': 8}
 - Submission rows: 100
