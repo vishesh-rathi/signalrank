@@ -103,7 +103,7 @@ The system has two scripts, split by the contest's compute constraints
 ║ └───────────────────────────────────┬───────────────────────────────────┘ ║
 ║                                     ▼                                     ║
 ║ ┌───────────────────────────────────────────────────────────────────────┐ ║
-║ │ 4. BEHAVIORAL MULTIPLIER  [0.30 , 1.0] — down-weights only            │ ║
+║ │ 4. BEHAVIORAL MULTIPLIER  [0.60 , 1.0] — down-weights only            │ ║
 ║ │    Availability - Responsiveness - Recency - Credibility              │ ║
 ║ └───────────────────────────────────┬───────────────────────────────────┘ ║
 ║                                     ▼                                     ║
@@ -163,9 +163,22 @@ dilute the graded evidence that actually separates tiers.
 ### 4. Behavioral signals multiply, never add
 
 `score = fit × behavioral_multiplier` where the multiplier lives in
-[0.30, 1.0]. This ensures that poor engagement sinks a profile but good
+[0.60, 1.0]. This ensures that poor engagement sinks a profile but good
 engagement can *never* lift a weak technical fit above a strong one. This is
 exactly the JD's stated priority: *"skills-fit vs. actually available."*
+
+The floor (`config.MULT_FLOOR`) sets the multiplier's *strength* — the deepest
+discount an unreachable profile can take is `1 − floor`. It is calibrated to
+**0.60**, deliberately a modifier rather than a co-equal axis: the dataset's
+relevance tiers are assigned by build *depth* (`eval/dev_labels.jsonl`:
+`builder_built` → tier 4-5, `ml_adjacent`/generic → 2, honeypot/non-tech → 0),
+with no tier keyed off availability. A lower floor let a highly-available generic
+"maybe" override a moderately-available demonstrated builder against that
+depth-driven ground truth. A sweep over the labeled dev set peaks NDCG@50 at
+0.60 (composite 0.857 → 0.868) while keeping the top-10 archetype mix unchanged
+(7 ELITE / 3 STRONG), honeypots at 0, and the genuinely unreachable still buried
+— so 0.60 honors the JD's down-weight of the unreachable without letting
+availability outvote build-depth. (Full evidence: `SUBMISSION_AUDIT.md` §5c.)
 
 ### 5. Role descriptions corroborate, never establish
 
@@ -214,30 +227,35 @@ Independently verified by `eval/verify_submission.py` (imports nothing from
 | Metric | Value |
 |---|---|
 | **Top-10 composition** | 7 ELITE, 3 STRONG, **0 GENERIC** |
-| **Top-50 composition** | 12 ELITE, 35 STRONG, 2 SENIOR_ENG, 1 GENERIC |
-| **Top-100 composition** | 13 ELITE, 60 STRONG, 5 SENIOR_ENG, 22 GENERIC |
+| **Top-50 composition** | 12 ELITE, 36 STRONG, 2 SENIOR_ENG, **0 GENERIC** |
+| **Top-100 composition** | 13 ELITE, 74 STRONG, 3 SENIOR_ENG, 10 GENERIC |
 | Honeypots in top-100 | **0** (DQ threshold: >10%) |
 | Trap candidates in top-100 | **0** services-only, **0** keyword-stuffers, **0** non-tech, **0** title-chasers |
 | Unjustified swaps | **0** (no excluded builder dominates an included weaker candidate on all JD axes) |
 | Unique reasoning strings | **100/100** |
-| Spearman (rank vs. independent strength) | **0.781** |
+| Spearman (rank vs. independent strength) | **0.847** |
+
+*(Figures reflect `MULT_FLOOR = 0.60`; see Key Design Decision #4 and `SUBMISSION_AUDIT.md` §5c for the calibration that lifted the top-100 deep-builder count from 73 to 87.)*
 
 ### Missing ELITE candidates — every exclusion justified
 
 Of 21 ELITE candidates in the pool, 13 are in the submission. The 8 excluded:
 - 6 are **unreachable** (response rates 0.07–0.16, inactive 113–214 days,
-  not open to work) — exactly the candidates the JD says to down-weight
-- 2 are **out of the JD's 5–9-year band** (16.2 and 2.9 years of experience),
-  reachable but outside the seniority window the role targets
+  not open to work) — exactly the candidates the JD says to down-weight. Their
+  multiplier rises under the 0.60 floor but their fit × multiplier still lands at
+  ranks 138–452, well outside the top-100.
+- 2 are **honeypots** (impossible profiles, forced to score 0 → ranks ≈ 99 956 /
+  99 995); they also happen to fall outside the 5–9-year band (16.2 and 2.9 years).
 
-### The 22 GENERIC in top-100 — legitimate behavioral advantage
+### The 10 GENERIC in top-100 — legitimate behavioral advantage
 
-The 22 GENERIC-archetype candidates persist on overwhelming engagement, not
-evidence: avg recruiter-response 0.82, 100% open-to-work, 91% in target cities,
-avg notice 52 days — versus the excluded coherent-FIT builders at 0.65 response,
-48% open-to-work, 48% in target cities, 69-day notice. The head-to-head analysis
-confirms **0 unjustified swaps**: no excluded builder dominates an included
-GENERIC on *all* JD axes simultaneously.
+After the `MULT_FLOOR` calibration (#4), 10 GENERIC-archetype candidates remain
+in the top-100 (none in the top-50). They persist on overwhelming engagement,
+not evidence: avg recruiter-response 0.84, 100% open-to-work, 100% in target
+cities, avg notice 52 days — versus the excluded coherent-FIT builders at 0.65
+response, 50% open-to-work, 38% in target cities, 57-day inactivity. The
+head-to-head analysis confirms **0 unjustified swaps**: no excluded builder
+dominates an included GENERIC on *all* JD axes simultaneously.
 
 ---
 

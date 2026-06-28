@@ -2,6 +2,7 @@
 
 from datetime import date
 
+from ranker import config
 from ranker.behavioral import _notice_factor, availability_score, behavioral_multiplier
 
 TODAY = date(2026, 6, 9)
@@ -75,14 +76,18 @@ def test_ideal_candidate_multiplier_near_one():
 
 
 def test_ghost_candidate_multiplier_near_floor():
+    # A profile with essentially no engagement signal collapses to the floor (plus
+    # only the tiny residual its near-zero blend earns). Bound is expressed against
+    # config.MULT_FLOOR so the test tracks the calibrated multiplier strength
+    # rather than pinning a literal.
     multiplier, _ = behavioral_multiplier(make_ghost_candidate(), TODAY)
-    assert 0.30 <= multiplier <= 0.45
+    assert config.MULT_FLOOR <= multiplier <= config.MULT_FLOOR + 0.05
 
 
 def test_multiplier_never_exceeds_one_or_dips_below_floor():
     for candidate in (make_ideal_candidate(), make_ghost_candidate()):
         multiplier, _ = behavioral_multiplier(candidate, TODAY)
-        assert 0.30 <= multiplier <= 1.0
+        assert config.MULT_FLOOR <= multiplier <= 1.0
 
 
 def test_inflated_skill_claims_lower_credibility():
@@ -117,7 +122,7 @@ def test_trace_exposes_all_subscores():
 
 def test_multiplier_with_no_signals_block_stays_in_range():
     multiplier, trace = behavioral_multiplier({}, TODAY)
-    assert 0.30 <= multiplier <= 1.0
+    assert config.MULT_FLOOR <= multiplier <= 1.0
     assert set(trace) == {"availability", "responsiveness", "recency", "credibility", "mult"}
 
 

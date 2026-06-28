@@ -372,9 +372,28 @@ TENURE_CHASER_PENALTY = 0.75
 # Behavioral multiplier: scales fit into [MULT_FLOOR, 1.0]. It can only
 # down-weight — a great-on-paper but unavailable candidate sinks, but the
 # modifier can never lift a weak fit above an available strong one.
+#
+# MULT_FLOOR sets the multiplier's STRENGTH: the deepest discount an unavailable
+# profile can take is (1 - MULT_FLOOR). It is deliberately a *modifier*, not a
+# co-equal ranking axis. The dataset's relevance tiers are assigned by build
+# DEPTH (eval/dev_labels.jsonl: builder_built -> tier 4-5, ml_adjacent/generic ->
+# tier 2, honeypot/non_software_title -> 0), with no tier keyed off
+# notice/response/recency/open-to-work. A floor too low (the earlier 0.30) lets
+# the multiplier swing score by up to 70% — enough for a ~0.90-available generic
+# "maybe" to override a ~0.77-available demonstrated builder, pushing the JD's
+# "1000 maybes" above the "10 great matches" against a depth-driven ground truth.
+# 0.60 keeps a meaningful 40% discount on the genuinely unreachable (the
+# 6-months-gone, <16%-response ELITEs still sink far below the top-100) while
+# letting build-depth — the tier driver — decide the ranking. A floor sweep over
+# the labeled dev set peaks NDCG@50 at 0.60 (composite 0.857 -> 0.868) with the
+# top-10 archetype mix unchanged (7 ELITE / 3 STRONG) and honeypots still 0;
+# lifting it further toward 1.0 keeps climbing dev NDCG@10 but resurfaces
+# unreachable elites into the top ranks — overfitting a small, builder-heavy dev
+# set and a Stage-4/5 liability — so 0.60 is the calibrated balance, not the
+# dev-set argmax.
 # ---------------------------------------------------------------------------
 MULT_WEIGHTS = {"availability": 0.30, "responsiveness": 0.30, "recency": 0.25, "credibility": 0.15}
-MULT_FLOOR = 0.30
+MULT_FLOOR = 0.60
 
 # Notice-period availability curve. The JD: "We'd love sub-30-day notice. We can
 # buy out up to 30 days. 30+ day notice candidates are still in scope but the bar

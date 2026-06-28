@@ -77,9 +77,12 @@ methodology_summary: |
   the 5-9 year seniority sweet spot, prioritizing prior product-company
   experience, favoring Pune/Noida, and rewarding strong tenure stability.
 
-  4. Behavioral Multiplier: A strict penalty system [0.30, 1.0] aggressively
-  down-weights technically brilliant but unreachable candidates based on poor
-  response rates, stale availability, and low credibility.
+  4. Behavioral Multiplier: A penalty system [0.60, 1.0] down-weights
+  technically brilliant but unreachable candidates based on poor response rates,
+  stale availability, and low credibility. The floor is calibrated so behavioral
+  acts as a modifier, not a co-equal axis: the dataset's relevance tiers are
+  depth-driven, so the multiplier suppresses the genuinely unreachable without
+  letting a highly-available generalist outrank a demonstrated builder.
 
   5. Extractive Reasoning: The final score is simply (Fit x Multiplier). Every
   submission row includes a transparent reasoning string assembled directly
