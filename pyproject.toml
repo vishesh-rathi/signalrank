@@ -3,12 +3,12 @@ name = "redrob-ranker"
 version = "0.1.0"
 description = "Interpretable top-100 candidate ranker for the Redrob India Runs Hackathon 2026 : Track 1 - The Data & AI Challenge - Intelligent Candidate Discovery."
 requires-python = ">=3.13,<3.14"
+# The ranking step (rank.py) imports only numpy + the local ranker package, so
+# that is the only runtime dependency. App-only (Streamlit dashboard) and
+# precompute-only (torch/sentence-transformers) deps live in opt-in groups so the
+# Stage-3 ranking repro installs a minimal, torch-free environment.
 dependencies = [
-    "huggingface-hub>=1.18.0",
     "numpy>=2.4.6",
-    "openpyxl>=3.1.5",
-    "streamlit>=1.35.0",
-    "watchdog>=6.0.0",
 ]
 
 [tool.pytest.ini_options]
@@ -20,8 +20,14 @@ dev = [
     "ruff>=0.15.16",
 ]
 precompute = [
+    "huggingface-hub>=1.18.0",
     "sentence-transformers>=5.5.1",
     "torch>=2.12.0",
+]
+app = [
+    "openpyxl>=3.1.5",
+    "streamlit>=1.35.0",
+    "watchdog>=6.0.0",
 ]
 
 [tool.ruff]

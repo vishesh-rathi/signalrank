@@ -14,8 +14,10 @@ WORKDIR /app
 # Copy project package configurations
 COPY pyproject.toml uv.lock ./
 
-# Install project dependencies into the container virtual environment
-RUN uv sync --frozen --no-dev
+# Install project dependencies into the container virtual environment. The
+# Streamlit sandbox needs the app-group deps (streamlit/openpyxl/watchdog), which
+# live outside the core ranking dependency — request them explicitly.
+RUN uv sync --frozen --no-dev --group app
 
 # Copy all source files
 COPY . .

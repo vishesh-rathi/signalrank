@@ -58,12 +58,22 @@ def evaluate(
     (percentile over the full 100K pool, not the dev subset) so tuning sees the
     same recall axis the production ranker will.
     """
+    # Apply the trial weights only for the duration of this scoring pass, then
+    # restore — scoring reads config.WEIGHTS, but a lingering global mutation would
+    # leak into anything that imports this module. snapshot/restore keeps the side
+    # effect contained without threading weights through the production scorer.
+    original = config.WEIGHTS
     config.WEIGHTS = weights
-    scored = []
-    for candidate in dev_candidates:
-        candidate_id = candidate["candidate_id"]
-        score, _ = score_candidate(candidate, semantic_by_id.get(candidate_id), config.DATA_AS_OF)
-        scored.append((score, labels[candidate_id]))
+    try:
+        scored = []
+        for candidate in dev_candidates:
+            candidate_id = candidate["candidate_id"]
+            score, _ = score_candidate(
+                candidate, semantic_by_id.get(candidate_id), config.DATA_AS_OF
+            )
+            scored.append((score, labels[candidate_id]))
+    finally:
+        config.WEIGHTS = original
     scored.sort(key=lambda pair: -pair[0])
     predicted = [tier for _, tier in scored]
     return composite(predicted, list(labels.values()))

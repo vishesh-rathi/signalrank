@@ -25,8 +25,8 @@ uv run python precompute.py
 uv run python eval/verify_submission.py       # regenerates eval/verify_report.md
 uv run python eval/archetype_report.py        # tier distribution check after scoring changes
 
-# Streamlit UI
-uv run streamlit run app.py
+# Streamlit UI (app-only deps live in the `app` dependency group)
+uv run --group app streamlit run app.py
 
 # Validate submission format
 uv run python validate_submission.py
@@ -47,7 +47,7 @@ Two-script design forced by contest constraints (5 min, CPU-only, no network):
 | `config.py` | JD-as-config layer — all JD-specific lexicons (`STRONG_CONCEPTS`, `MED_PHRASES`), feature weights, thresholds. Swapping this retargets to a different JD. |
 | `honeypot.py` | 5 deterministic consistency checks; impossible profiles → score 0 before scoring runs |
 | `features.py` | Technical fit: concept-depth grading, domain gate, title coherence gate, title-chaser penalty |
-| `behavioral.py` | Multiplier [0.30, 1.0] — availability (notice-period convex decay), responsiveness, recency, credibility |
+| `behavioral.py` | Multiplier [0.60, 1.0] — availability (notice-period convex decay), responsiveness, recency, credibility |
 | `score.py` | Combines fit × behavioral multiplier; sorts by (−score, candidate_id) |
 | `reasoning.py` | Extractive reasoning generation for the submission CSV's `reasoning` column |
 | `embeddings.py` | Semantic similarity: pool-normalized cosine against JD probes (20% of fit score) |
@@ -67,7 +67,7 @@ Two-script design forced by contest constraints (5 min, CPU-only, no network):
 
 **Skills array is ignored**: `skills[]` is uniform noise by design. All technical fit comes from career narrative (summary + role titles/descriptions).
 
-**Behavioral signals multiply, never add**: `score = fit × multiplier`. Good behavior cannot lift a weak technical fit. The multiplier range is [0.30, 1.0] — it only suppresses.
+**Behavioral signals multiply, never add**: `score = fit × multiplier`. Good behavior cannot lift a weak technical fit. The multiplier range is [0.60, 1.0] (`config.MULT_FLOOR = 0.60`) — it only suppresses.
 
 **Evidence depth grading**: 1 distinct concept → 0.7, 2 → 0.85, 3+ → 1.0. Never flatten to presence/absence — that saturates the top cohort.
 

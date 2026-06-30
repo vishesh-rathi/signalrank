@@ -265,8 +265,8 @@ dominates an included GENERIC on *all* JD axes simultaneously.
 Requires [`uv`](https://docs.astral.sh/uv/) and Python 3.13 (uv installs it).
 
 ```bash
-# Install dependencies (numpy only for ranking)
-uv sync --locked
+# Install the ranking dependency (numpy only — no torch/streamlit)
+uv sync --locked --no-dev
 
 # Rank — CPU-only, no network, ~53 seconds
 uv run python rank.py --candidates ./candidates.jsonl --out ./submission.csv
@@ -298,7 +298,7 @@ inspect individual candidate scores, and export submission CSVs.
 ### Run Locally
 
 ```bash
-uv run streamlit run app.py
+uv run --group app streamlit run app.py
 ```
 
 This opens the dashboard at `http://localhost:8501`. Select the pre-loaded
