@@ -379,6 +379,18 @@ uv run python eval/tune.py --artifacts artifacts
 # Full-pool archetype audit (ELITE/STRONG/GENERIC placement, honeypot count)
 uv run python eval/archetype_report.py --artifacts artifacts
 
+# Threshold sensitivity — perturb each threshold ±20%, report top-10/50/100
+# stability  ->  eval/sensitivity_report.md
+uv run python eval/sensitivity.py --artifacts artifacts
+
+# Lexicon coverage — measure lexical recall against off-lexicon builder
+# synonyms  ->  eval/lexicon_coverage_report.md
+uv run python eval/lexicon_coverage.py
+
+# Gated impact harness — measure a candidate scoring change (top-100 churn,
+# top-10 archetype mix, dev composite/NDCG) before applying it
+uv run python eval/impact.py --artifacts artifacts
+
 # Independent submission verification (no ranker/ import)
 uv run python eval/verify_submission.py
 ```
@@ -386,6 +398,17 @@ uv run python eval/verify_submission.py
 Tuned weights are reviewed and applied to `ranker/config.py` by hand — never
 auto-committed. The dev set is builder-heavy and the tuner reliably overfits
 (e.g., zeroing education and seniority axes the JD names explicitly).
+
+Two audits keep the hand-set design honest. `sensitivity.py` confirms the
+ranking is robust to its thresholds: across 34 ±20% perturbations the top-10
+never admits a GENERIC or a honeypot (worst top-10 Jaccard 0.667).
+`lexicon_coverage.py` confirms the deliberately narrow lexicon is
+near-fully-covering on this templated pool — the only off-lexicon builder term
+appearing in candidate summaries is "collaborative filtering". `impact.py`
+gates any candidate scoring change against the dev set before it ships; both
+tweaks trialed so far (crediting "collaborative filtering" as a recommendation
+concept, and adding a positive skill-assessment signal) were rejected for not
+improving the composite.
 
 ---
 
@@ -428,6 +451,9 @@ project/
 ├── eval/
 │   ├── tune.py                      # Coordinate-descent weight tuner
 │   ├── archetype_report.py          # Full-pool archetype placement diagnostic
+│   ├── sensitivity.py               # Threshold sensitivity sweep (top-10/50/100 stability)
+│   ├── lexicon_coverage.py          # Lexical-recall coverage audit
+│   ├── impact.py                    # Gated scoring-change impact harness
 │   ├── verify_submission.py         # Independent output verification (no ranker/ imports)
 │   └── dev_labels.jsonl             # Rubric-labeled development dataset
 │
