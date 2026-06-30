@@ -153,6 +153,23 @@ MED_PHRASES = [
 ]
 
 # ---------------------------------------------------------------------------
+# Built-evidence grade bands: the depth ladder plus the two fallback floors and
+# the self-disclaimer cap. Kept here rather than hardcoded inside
+# ``features._grade_evidence`` so the ladder is part of the tunable JD-config
+# surface (the sensitivity harness perturbs it without reaching into module
+# internals). Values are unchanged from the original literals — a config
+# extraction, not a recalibration.
+# ---------------------------------------------------------------------------
+EVIDENCE_BANDS = {
+    "three_plus": 1.0,  # >= 3 distinct primary concepts: deep builder (rare)
+    "two": 0.85,  # 2 distinct concepts
+    "one": 0.7,  # 1 concept: real but shallow
+    "corroboration": 0.6,  # concept only in (boilerplate) role descriptions
+    "med_floor": 0.5,  # generic ML prose, no JD concept
+    "disclaimer_cap": 0.55,  # self-disclaimed depth caps evidence here
+}
+
+# ---------------------------------------------------------------------------
 # Domain gating
 #
 # Built-evidence alone is a trap: the candidate pool salts in Computer Vision

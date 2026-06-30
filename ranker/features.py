@@ -36,6 +36,19 @@ _STRONG_CONCEPTS = {
 }
 
 
+def rebuild_concept_patterns() -> None:
+    """Recompile the STRONG-concept matchers from config.STRONG_CONCEPTS in place.
+
+    The patterns are compiled once at import (the hot path). Call this after
+    mutating config.STRONG_CONCEPTS so the change takes effect — used by the eval
+    impact harness to test an added concept without reaching into module internals.
+    """
+    _STRONG_CONCEPTS.clear()
+    _STRONG_CONCEPTS.update(
+        {name: compile_lexicon(tuple(terms)) for name, terms in config.STRONG_CONCEPTS.items()}
+    )
+
+
 # A keyword inside a sentence about what the candidate WANTS, is merely
 # LEARNING about, or directly after a negating/comparative word, is not
 # built-evidence ("looking to grow into a role closer to ... modern ranking
@@ -151,24 +164,25 @@ def _grade_evidence(
     prose (0.5) but below corroboration (0.6), since the candidate themselves
     says the depth isn't there.
     """
+    bands = config.EVIDENCE_BANDS
     distinct = len(primary)
     if distinct >= 3:
-        score = 1.0
+        score = bands["three_plus"]
     elif distinct == 2:
-        score = 0.85
+        score = bands["two"]
     elif distinct == 1:
-        score = 0.7
+        score = bands["one"]
     elif corroboration:
-        score = 0.6
+        score = bands["corroboration"]
     elif _MED.search(text):
-        score = 0.5
+        score = bands["med_floor"]
     else:
         return 0.0
     # A self-disclaiming summary caps evidence: the candidate says they are
     # lighter / still building depth. Their real but shallow built-evidence
     # should not compete with non-disclaiming builders at the same concept count.
     if has_disclaimer:
-        score = min(score, 0.55)
+        score = min(score, bands["disclaimer_cap"])
     return score
 
 
