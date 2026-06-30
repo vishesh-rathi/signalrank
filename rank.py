@@ -68,7 +68,7 @@ def main() -> None:
     mode = "hybrid" if embeddings is not None else "lexical-only (artifacts missing)"
 
     # Materializing all 100K parsed candidate dicts is the run's dominant memory
-    # cost (~1.3 GB peak RSS) — far more than the embedding matrix or the scored
+    # cost (~1.4 GB peak RSS) — far more than the embedding matrix or the scored
     # list. At an 11x margin under the 16 GB ceiling on a fixed-size pool this is
     # the simplest correct choice; streaming the candidates end-to-end is the
     # lever to reach for only if the pool grows by an order of magnitude.

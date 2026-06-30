@@ -67,11 +67,12 @@ The system has two scripts, split by the contest's compute constraints
 ║                                                                           ║
 ║ 100K candidate narratives ──┐                      ┌─ artifacts/ ───────┐ ║
 ║                             ├──> bge-small-en-v1.5 ┼─ cand_embeddings.npy ║
-║ 8 JD requirement probes ────┘    (sentence-tr.)    ├─ jd_probes.npy       ║
+║ 8 JD requirement probes ────┘    (sentence-tr.)    jd_probe_embeddings.npy║
 ║                                                    └─ cand_ids.json       ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
                                       │
                             numpy load│(no torch, no network)
+                                      |
                                       ▼
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║ rank.py — RANKING STEP (CPU-only, no network, ~53 s)                      ║
@@ -178,7 +179,7 @@ depth-driven ground truth. A sweep over the labeled dev set peaks NDCG@50 at
 0.60 (composite 0.857 → 0.868) while keeping the top-10 archetype mix unchanged
 (7 ELITE / 3 STRONG), honeypots at 0, and the genuinely unreachable still buried
 — so 0.60 honors the JD's down-weight of the unreachable without letting
-availability outvote build-depth. (Full evidence: `SUBMISSION_AUDIT.md` §5c.)
+availability outvote build-depth. 
 
 ### 5. Role descriptions corroborate, never establish
 
@@ -191,7 +192,7 @@ at 0.6 (corroboration), while summary + title evidence can reach 1.0.
 
 Embedding 100K narratives with a transformer would blow the 5-minute CPU
 budget. Instead, `precompute.py` runs *once* offline (network + GPU OK) and
-writes fp16 `.npy` artifacts (~75 MB total, committed to the repo). The
+writes fp16 `.npy` artifacts (~77 MB total, committed to the repo). The
 ranking step (`rank.py`) loads these with numpy alone — no torch, no network,
 no GPU. If the artifacts are missing, it degrades gracefully to lexical-only
 scoring.
@@ -235,7 +236,7 @@ Independently verified by `eval/verify_submission.py` (imports nothing from
 | Unique reasoning strings | **100/100** |
 | Spearman (rank vs. independent strength) | **0.847** |
 
-*(Figures reflect `MULT_FLOOR = 0.60`; see Key Design Decision #4 and `SUBMISSION_AUDIT.md` §5c for the calibration that lifted the top-100 deep-builder count from 73 to 87.)*
+*(Figures reflect `MULT_FLOOR = 0.60` and it lifted the top-100 deep-builder count from 73 to 87.)*
 
 ### Missing ELITE candidates — every exclusion justified
 
@@ -336,7 +337,7 @@ frontmatter in this README and the `Dockerfile`). To deploy:
    `https://huggingface.co/spaces/YOUR_USERNAME/YOUR_SPACE_NAME`
 
 > **Note:** The `app_port: 7860` in the YAML frontmatter tells HF which port
-> to proxy. The embedding artifacts are committed (~75 MB), so the ranking
+> to proxy. The embedding artifacts are committed (~77 MB), so the ranking
 > step reproduces with numpy alone — no torch, no network needed at runtime.
 
 ### Rebuild Artifacts from Scratch
@@ -360,7 +361,7 @@ uv run --group precompute python precompute.py \
 | Peak RAM | 16 GB | **~1.4 GB** | 11× |
 | CPU-only | required | ✅ | `rank.py` imports only numpy + stdlib |
 | Network OFF | required | ✅ | Precomputed `.npy` artifacts, local files only |
-| Disk | 5 GB | **~75 MB** | 66× |
+| Disk | 5 GB | **~77 MB** | 66× |
 | Determinism | required | ✅ | Byte-identical reruns; fixed `config.DATA_AS_OF`, never `date.today()` |
 
 ---
@@ -391,38 +392,49 @@ auto-committed. The dev set is builder-heavy and the tuner reliably overfits
 ## Tests
 
 ```bash
-uv run pytest -q          # 109 unit + end-to-end tests
+uv run pytest -q          # 114 total (unit + end-to-end) tests
 uv run ruff check .       # lint gate (zero suppressions)
 ```
 
-The end-to-end test (`tests/test_rank_e2e.py`) generates a synthetic pool,
-runs the full pipeline, and validates the output against the contest's format
-rules — the same `validate_submission.py` the organizers provide.
+The end-to-end test (`tests/test_rank_e2e.py`) generates a synthetic candidate
+pool in-process, runs the full `rank.py` pipeline (lexical-only), and asserts the
+contest's format invariants the organizers' `validate_submission.py` enforces:
+the exact CSV header, sequential ranks, non-increasing six-decimal scores, and
+the ascending-`candidate_id` tie-break. Because the pool is self-generated, these
+tests pass on a clean clone without the (uncommitted, 465 MB) `candidates.jsonl`.
 
 ---
 
 ## Project Layout
 
 ```
-rank.py               Ranking entrypoint (CPU-only, numpy + stdlib)
-precompute.py          Offline embedding-artifact builder (torch)
-app.py                 Streamlit sandbox dashboard
-Dockerfile             HF Spaces / local Docker deployment
-ranker/
-  config.py            JD-as-config: lexicons, weights, thresholds
-  util.py              Parsing, narrative assembly, lexicon matching
-  honeypot.py          Deterministic impossible-profile detection
-  features.py          Domain-gated technical fit + contextual features
-  behavioral.py        Multiplicative engagement modifier
-  embeddings.py        Cosine similarity + pool normalization
-  score.py             Score composition + top-N ranking
-  reasoning.py         Extractive, per-candidate reasoning strings
-  metrics.py           NDCG, MAP, P@k (matching the judges' formula)
-eval/
-  tune.py              Coordinate-descent weight tuner
-  archetype_report.py  Full-pool archetype placement diagnostic
-  verify_submission.py Independent output verification (no ranker/ import)
-  dev_labels.jsonl     Rubric-labeled dev set
-tests/                 One suite per module + end-to-end CSV test
-artifacts/             Committed embedding artifacts (~75 MB)
+project/
+├── rank.py                          # Ranking entrypoint (CPU-only, NumPy + stdlib)
+├── precompute.py                    # Offline embedding-artifact builder (PyTorch)
+├── app.py                           # Streamlit sandbox dashboard
+├── Dockerfile                       # HF Spaces / Local Docker deployment
+│
+├── ranker/
+│   ├── config.py                    # JD-as-config: lexicons, weights, thresholds
+│   ├── util.py                      # Parsing, narrative assembly, lexicon matching
+│   ├── honeypot.py                  # Deterministic impossible-profile detection
+│   ├── features.py                  # Domain-gated technical fit + contextual features
+│   ├── behavioral.py                # Multiplicative engagement modifier
+│   ├── embeddings.py                # Cosine similarity + pool normalization
+│   ├── score.py                     # Score composition + Top-N ranking
+│   ├── reasoning.py                 # Extractive per-candidate reasoning
+│   └── metrics.py                   # NDCG, MAP, P@K evaluation metrics
+│
+├── eval/
+│   ├── tune.py                      # Coordinate-descent weight tuner
+│   ├── archetype_report.py          # Full-pool archetype placement diagnostic
+│   ├── verify_submission.py         # Independent output verification (no ranker/ imports)
+│   └── dev_labels.jsonl             # Rubric-labeled development dataset
+│
+├── tests/                           # Unit and end-to-end test suite
+│   ├── ...                          # One test module per source module
+│   └── ...                          # End-to-end CSV ranking tests
+│
+└── artifacts/
+    └── ...                          # Precomputed embedding artifacts (~77 MB)
 ```
