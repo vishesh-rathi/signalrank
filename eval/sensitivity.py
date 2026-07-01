@@ -1,4 +1,4 @@
-"""Threshold sensitivity analysis for the ranker (addresses critical_review R5).
+"""Threshold sensitivity analysis for the ranker.
 
 Answers: "How fragile is the top-10/top-50 to the hand-set thresholds?" For each
 named threshold we perturb it (±20%, or alternative ladders for the discrete

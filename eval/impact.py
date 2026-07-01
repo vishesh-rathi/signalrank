@@ -1,4 +1,4 @@
-"""Impact harness for GATED scoring experiments (critical_review C1/C2).
+"""Impact harness for GATED scoring experiments (C1/C2).
 
 Measures, but does not apply, a candidate scoring change: it scores the full pool
 under baseline and under each variant and reports top-100 churn, top-10 archetype

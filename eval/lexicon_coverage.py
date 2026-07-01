@@ -1,6 +1,6 @@
-"""Lexicon coverage audit (addresses critical_review R1).
+"""Lexicon coverage audit: how much of the pool does the STRONG lexicon reach?
 
-The technical-fit axis keys off a hand-curated STRONG lexicon. The fair critique
+The technical-fit axis keys off a hand-curated STRONG lexicon. The fair question
 is: what is its recall — how many genuine builders does it miss because they use
 a synonym the lexicon does not list? This script measures that directly against
 the real pool, so the answer is data, not assertion.
@@ -9,8 +9,8 @@ the real pool, so the answer is data, not assertion.
 
 Generates eval/lexicon_coverage_report.md. Read-only.
 
-Finding (this synthetic pool is templated): the off-lexicon builder vocabulary the
-review hypothesises ("discovery engine", "search relevance pipeline", "query
+Finding (this synthetic pool is templated): a plausible off-lexicon builder
+vocabulary ("discovery engine", "search relevance pipeline", "query
 understanding", "two-tower", "solr", ...) is essentially absent from candidate
 summaries; the only off-lexicon builder term that appears is "collaborative
 filtering". So lexicon recall is narrow *by design* yet near-fully-covering here.

@@ -1,10 +1,10 @@
 """Bootstrap confidence intervals on the dev composite and the C1/C2 deltas.
 
 The dev composite (`eval/tune.py`, `eval/impact.py`) is always reported as a single
-point estimate over 160 labeled candidates. That hides two things final_verdict.md
-flagged: how much sampling noise a set that small carries, and whether the C1/C2
-"REJECT" calls are backed by a real effect or by noise smaller than n=160 can
-resolve. Paired bootstrap answers both without touching scoring:
+point estimate over 160 labeled candidates. That hides two things: how much
+sampling noise a set that small carries, and whether the C1/C2 "REJECT" calls
+are backed by a real effect or by noise smaller than n=160 can resolve. Paired
+bootstrap answers both without touching scoring:
 
     uv run python eval/bootstrap_ci.py --artifacts artifacts
 
