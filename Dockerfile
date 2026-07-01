@@ -26,4 +26,4 @@ COPY . .
 EXPOSE 7860
 
 # Launch Streamlit app using uv run to invoke the virtual environment
-CMD ["uv", "run", "streamlit", "run", "app.py", "--server.port", "7860", "--server.address", "0.0.0.0"]
+CMD ["/app/.venv/bin/streamlit", "run", "app.py", "--server.port", "7860", "--server.address", "0.0.0.0"]
