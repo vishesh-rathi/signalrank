@@ -408,6 +408,15 @@ TENURE_CHASER_PENALTY = 0.75
 # unreachable elites into the top ranks — overfitting a small, builder-heavy dev
 # set and a Stage-4/5 liability — so 0.60 is the calibrated balance, not the
 # dev-set argmax.
+#
+# Caveat on the dev set itself: eval/dev_labels.jsonl's tier rubric was built
+# from these same lexicons (STRONG_PHRASES, MED_PHRASES, DOMAIN_POSITIVE) —
+# every tier>=3 dev candidate independently trips features.evidence_score>=0.7.
+# So the composite this floor was calibrated against measures mostly whether the
+# aggregation agrees with the lexicon it's built from, not independent ground
+# truth. eval/bootstrap_ci.py quantifies the resulting sampling uncertainty
+# (baseline composite 0.8682, 95% CI ~[0.76, 0.96] over n=160) — read any single
+# decimal place of dev composite/NDCG quoted elsewhere with that CI in mind.
 # ---------------------------------------------------------------------------
 MULT_WEIGHTS = {"availability": 0.30, "responsiveness": 0.30, "recency": 0.25, "credibility": 0.15}
 MULT_FLOOR = 0.60
